@@ -24,6 +24,8 @@ package flexUnitTests.as3.mongo.db
 			_db = null;
 		}
 		
+		// TODO: Add tests to make sure DB starts a Wire object during instantiation
+		
 		
 		[Test]
 		public function DB_onInstantiation_nameReturnsCorrectValue():void
