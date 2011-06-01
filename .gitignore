@@ -1,0 +1,10 @@
+.actionScriptProperties
+.DS_Store
+.flexLibProperties
+.FlexUnitSettings
+.project
+.settings
+bin
+flexUnitLibrary
+MongoAS3.iml
+
