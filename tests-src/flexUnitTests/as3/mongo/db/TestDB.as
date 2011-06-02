@@ -1,6 +1,7 @@
 package flexUnitTests.as3.mongo.db
 {
 	import as3.mongo.db.DB;
+	import as3.mongo.wire.Wire;
 	
 	import flash.net.Socket;
 	
@@ -13,9 +14,14 @@ package flexUnitTests.as3.mongo.db
 			super(databaseName, host, port);
 		}
 		
-		public function set mockSocket(mockedSocket:Socket):void
+		public function set mockWire(mockedWire:Wire):void
 		{
-			socket = mockedSocket;
+			_wire = mockedWire;
 		}
+		public function get mockWire():Wire
+		{
+			return _wire;
+		}
+		
 	}
 }

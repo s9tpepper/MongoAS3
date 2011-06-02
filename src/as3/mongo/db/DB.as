@@ -4,6 +4,7 @@ package as3.mongo.db
 	import as3.mongo.db.credentials.Credentials;
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
+	import as3.mongo.wire.Wire;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -17,57 +18,67 @@ package as3.mongo.db
 
 	public class DB extends EventDispatcher
 	{
+		public function get hasCredentials():Boolean
+		{
+			return (credentials is Credentials);
+		}
+		
+		private var _isConnected:Boolean;
+		public function get isConnected():Boolean
+		{
+			return _isConnected;
+		}
+		
+		private var _port:uint;
+		public function get port():uint
+		{
+			return _port;
+		}
+		
+		private var _host:String;
+		public function get host():String
+		{
+			return _host;
+		}
+		
+		private var _isAuthenticated:Boolean;
+		public function get isAuthenticated():Boolean
+		{
+			return _isAuthenticated;
+		}
+		
+		private var _name:String;
+		public function get name():String
+		{
+			return _name;
+		}
+		
+		protected var _wire:Wire;
+		public function get wire():Wire
+		{
+			return _wire;
+		}
+		
+		private var _collections:Dictionary;
+		protected var credentials:Credentials;
+		
+		
 		public const CONNECTED:Signal = new Signal(DB);
 		public const CONNECTION_FAILED:Signal = new Signal(DB);
 		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
-		
-		private var _name:String;
-		private var _host:String;
-		private var _port:uint;
-		private var _isConnected:Boolean;
-		private var _isAuthenticated:Boolean;
-		private var _collections:Dictionary;
-		
-		protected var credentials:Credentials;
-		protected var socket:Socket;
+
+
+
 		
 		public function DB(databaseName:String, databaseHost:String, databasePort:uint)
 		{
 			_initialize(databaseName, databaseHost, databasePort);
 		}
 		
-		public function get hasCredentials():Boolean
-		{
-			return (credentials is Credentials);
-		}
-
-		public function get isConnected():Boolean
-		{
-			return _isConnected;
-		}
-
-		public function get port():uint
-		{
-			return _port;
-		}
-
-		public function get host():String
-		{
-			return _host;
-		}
-
-		public function get isAuthenticated():Boolean
-		{
-			return _isAuthenticated;
-		}
-
-		public function get name():String
-		{
-			return _name;
-		}
-
 		private function _initialize(databaseName:String, databaseHost:String, databasePort:uint):void
 		{
+			_wire = new Wire(this);
+			
 			_collections = new Dictionary();
 			
 			_name = databaseName;
@@ -75,39 +86,17 @@ package as3.mongo.db
 			_port = databasePort;
 		}
 		
-		public function connect():void
-		{
-			socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _handleSecurityError, false, 0, true);
-			socket.addEventListener(IOErrorEvent.IO_ERROR, _handleSocketError, false, 0, true);
-			socket.addEventListener(Event.CONNECT, _handleSocketConnect, false, 0, true);
-			socket.connect(host, port);
-		}
-		
-		private function _handleSecurityError(event:Event):void
-		{
-			SOCKET_POLICY_FILE_ERROR.dispatch(this);
-		}
-		private function _handleSocketError(event:Event):void
-		{
-			CONNECTION_FAILED.dispatch(this);
-		}
-		private function _handleSocketConnect(event:Event):void
-		{
-			_isConnected = true;
-			CONNECTED.dispatch(this);
-		}
-		
 		public function setCredentials(dbCredentials:Credentials):void
 		{
 			credentials = dbCredentials;
 		}
-		
 		public function authenticate():void
 		{
 			if (!hasCredentials)
 				throw new MongoError(MongoError.CALL_SET_CREDENTIALS_BEFORE_AUTHENTICATE);
 			
 		}
+		
 		
 		public function collection(collectionName:String):Collection
 		{
@@ -137,10 +126,17 @@ package as3.mongo.db
 			return collection;
 		}
 		
+		
+		
 		public function findOne(collectionName:String, query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):void
 		{
 			if (null == collectionName)
 				throw new MongoError(MongoError.COLLECTION_NAME_MAY_NOT_BE_NULL_OR_EMPTY);
+		}
+
+		public function connect():void
+		{
+			wire.connect();
 		}
 	}
 }

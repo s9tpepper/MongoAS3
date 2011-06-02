@@ -1,9 +1,11 @@
 package flexUnitTests.as3.mongo.db
 {
 	import as3.mongo.db.DB;
+	import as3.mongo.wire.Wire;
 	
 	import org.flexunit.asserts.assertEquals;
 	import org.flexunit.asserts.assertFalse;
+	import org.flexunit.asserts.assertTrue;
 
 	public class DB_ConstructorTests
 	{		
@@ -24,8 +26,11 @@ package flexUnitTests.as3.mongo.db
 			_db = null;
 		}
 		
-		// TODO: Add tests to make sure DB starts a Wire object during instantiation
-		
+		[Test]
+		public function DB_onInstantiation_hasWireCreated():void
+		{
+			assertTrue(_db.wire is Wire);
+		}
 		
 		[Test]
 		public function DB_onInstantiation_nameReturnsCorrectValue():void
