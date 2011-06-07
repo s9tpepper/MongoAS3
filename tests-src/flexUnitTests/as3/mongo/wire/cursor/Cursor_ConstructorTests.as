@@ -67,5 +67,11 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			assertFalse(_cursor.loadingReply);
 		}
+		
+		[Test]
+		public function Cursor_onInstantiation_bsonDecoderIsNotNull():void
+		{
+			assertNotNull(_cursor.decoder);
+		}
 	}
 }

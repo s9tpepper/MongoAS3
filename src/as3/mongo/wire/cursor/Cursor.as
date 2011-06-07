@@ -6,6 +6,7 @@ package as3.mongo.wire.cursor
 	import flash.net.Socket;
 	import flash.utils.Endian;
 	
+	import org.bson.BSONDecoder;
 	import org.osflash.signals.Signal;
 
 	public class Cursor
@@ -22,12 +23,18 @@ package as3.mongo.wire.cursor
 		private var _currentReplyLength:int;
 		private var _currentReplyLengthLoaded:int;
 		private var _loadingReply:Boolean;
+		private var _decoder:BSONDecoder;
 		
 		public function Cursor(cursorSocket:Socket)
 		{
 			_initializeCursor(cursorSocket);
 		}
 		
+		public function get decoder():BSONDecoder
+		{
+			return _decoder;
+		}
+
 		public function get loadingReply():Boolean
 		{
 			return _loadingReply;
@@ -66,6 +73,7 @@ package as3.mongo.wire.cursor
 			_documents = new Vector.<Document>();
 			_currentReplyLength = -1;
 			_currentReplyLengthLoaded = -1;
+			_decoder = new BSONDecoder();
 			
 			_socket.addEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData, false, 0, true);
 		}
