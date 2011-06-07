@@ -14,6 +14,7 @@ package flexUnitTests.as3.mongo.wire.messages.client
 	import org.bson.BSONEncoder;
 	import org.flexunit.assertThat;
 	import org.flexunit.asserts.assertEquals;
+	import org.hamcrest.object.strictlyEqualTo;
 
 	public class OpQuery_toByteArrayTests
 	{
@@ -58,6 +59,7 @@ package flexUnitTests.as3.mongo.wire.messages.client
 			mock(mockBsonEncoder).method("encode").args(testQuery).returns(encodedQueryDocument);
 			
 			encodedReturnFieldSelectorDocument = new ByteArray();
+			encodedReturnFieldSelectorDocument.writeInt(3);
 			mock(mockBsonEncoder).method("encode").args(testReturnFieldSelector).returns(encodedReturnFieldSelectorDocument);
 			
 			_opQuery.bsonEncoder = mockBsonEncoder;
@@ -268,6 +270,26 @@ package flexUnitTests.as3.mongo.wire.messages.client
 		{
 			mockByteArray = nice(ByteArray);
 			mock(mockByteArray).method("writeBytes").args(encodedReturnFieldSelectorDocument);
+			mock(mockMsgHeader).method("toByteArray").noArgs().returns(mockByteArray);
+		}
+		
+		// TODO: Figure out why this test is hanging. Something to do with the fake byteArray that is returned to test that writeBytes doesn't when return field selector is null.
+		// The error for this test has something to do with figuring out how to call two tests to writeBytes and differentiating the argument it takes in each case.
+		[Ignore]
+		[Test]
+		public function toByteArray_returnFieldSelectorDocumentIsNull_invokesWriteBytesWithByteArrayReturnedFromBSONEncoder():void
+		{
+			_mockByteArrayToCheckWriteBytesCallWithNullReturnFieldSelectorDocument();
+			_prepareMocks();
+			
+			_opQuery.toByteArray();
+			
+			assertThat(mockByteArray, received().method("writeBytes").arg(strictlyEqualTo(encodedReturnFieldSelectorDocument)).never());
+		}
+		private function _mockByteArrayToCheckWriteBytesCallWithNullReturnFieldSelectorDocument():void
+		{
+			mockByteArray = nice(ByteArray);
+//			mock(mockByteArray).method("writeBytes").args(strictlyEqualTo(encodedReturnFieldSelectorDocument));
 			mock(mockMsgHeader).method("toByteArray").noArgs().returns(mockByteArray);
 		}
 	}
