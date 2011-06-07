@@ -26,5 +26,11 @@ package flexUnitTests.as3.mongo.wire
 		{
 			assertNotNull(_wire.socket);
 		}
+		
+		[Test]
+		public function Wire_onInstantiation_hasMessageFactory():void
+		{
+			assertNotNull(_wire.messageFactory);
+		}
 	}
 }
