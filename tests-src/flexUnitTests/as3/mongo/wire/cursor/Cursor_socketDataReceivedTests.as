@@ -49,20 +49,47 @@ package flexUnitTests.as3.mongo.wire.cursor
 			_cursor = null;
 		}
 
-
-		[Test(async)]
-		public function currentReplyLength_firstProgressEvent_currentReplyLengthSet():void
+		private function _mockFirstProgressEvent():void
 		{
 			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
 			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
 			mock(mockedSocket).method("readInt").noArgs().returns(250);
 			_cursor = new Cursor(mockedSocket);
+		}
+		private function _mockFirstProgressEventAndSocket():void
+		{
+			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
+			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
+			mock(mockedSocket).method("readInt").noArgs().returns(250);
+			mock(mockedSocket).getter("bytesAvailable").returns(96);
+			_cursor = new Cursor(mockedSocket);
+		}
+		private function _mockTwoProgressEvents():void
+		{
+			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
+			var secondProgressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 200, 200);
+			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
+			mock(mockedSocket).method("flush").anyArgs().dispatches(secondProgressEvent);
+			mock(mockedSocket).method("readInt").noArgs().returns(250);
+			mock(mockedSocket).getter("bytesAvailable").returns(246);
+			_cursor = new Cursor(mockedSocket);
+		}
+		private function _dispatchSecondProgressEvent():void
+		{
+			mockedSocket.flush();
+		}
+
+		[Test(async)]
+		public function currentReplyLength_firstProgressEvent_currentReplyLengthSet():void
+		{
+			_mockFirstProgressEvent();
 
 			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgress);
 
 			// Connect method used here only to get the test progress event to dispatch
 			mockedSocket.connect("", 1); 
 		}
+
 		private function _handleProgress(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
 			assertEquals(250, _cursor.currentReplyLength);
@@ -72,11 +99,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test(async)]
 		public function currentReplyLength_firstProgressEvent_replyCompleteIsFalse():void
 		{
-			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
-			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
-			mock(mockedSocket).method("readInt").noArgs().returns(250);
-
-			_cursor = new Cursor(mockedSocket);
+			_mockFirstProgressEvent();
 
 			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckIsComplete);
 
@@ -92,12 +115,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test(async)]
 		public function currentReplyLength_firstProgressEvent_currentReplyLengthLoadedSet():void
 		{
-			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
-			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
-			mock(mockedSocket).method("readInt").noArgs().returns(250);
-			mock(mockedSocket).getter("bytesAvailable").returns(96);
-
-			_cursor = new Cursor(mockedSocket);
+			_mockFirstProgressEventAndSocket();
 
 			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckCurrentReplyLengthLoaded);
 
@@ -112,12 +130,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test(async)]
 		public function currentReplyLength_firstProgressEvent_loadingReplyIsTrue():void
 		{
-			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
-			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
-			mock(mockedSocket).method("readInt").noArgs().returns(250);
-			mock(mockedSocket).getter("bytesAvailable").returns(96);
-
-			_cursor = new Cursor(mockedSocket);
+			_mockFirstProgressEventAndSocket();
 
 			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckLoadingReplySetToTrue);
 
@@ -133,23 +146,12 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test(async, timeout="5000")]
 		public function Cursor_secondProgressEventDispatched_readIntInvokedOnce():void
 		{
-			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
-			var secondProgressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 140, 200);
-			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
-			mock(mockedSocket).method("flush").anyArgs().dispatches(secondProgressEvent);
-			mock(mockedSocket).method("readInt").noArgs().returns(250);
-			mock(mockedSocket).getter("bytesAvailable").returns(96);
-
-			_cursor = new Cursor(mockedSocket);
+			_mockTwoProgressEvents();
 
 			mockedSocket.connect("", 1); // dispatch first progress event
 
 			setTimeout(_dispatchSecondProgressEvent, 250); // delay second progress event
 			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleSecondCursorProgress, 5000);// handle the async second progress event
-		}
-		private function _dispatchSecondProgressEvent():void
-		{
-			mockedSocket.flush();
 		}
 		private function _handleSecondCursorProgress(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
@@ -159,21 +161,13 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test(async)]
 		public function onProgressEventDispatched_currentReplyLengthIsEqualToBytesAvailable_replyCompleteSignalDispatched():void
 		{
-			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
-			var secondProgressEvent:ProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 200, 200);
-			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
-			mock(mockedSocket).method("flush").anyArgs().dispatches(secondProgressEvent);
-			mock(mockedSocket).method("readInt").noArgs().returns(250);
-			mock(mockedSocket).getter("bytesAvailable").returns(246);
-
-			_cursor = new Cursor(mockedSocket);
+			_mockTwoProgressEvents();
 
 			mockedSocket.connect("", 1); // dispatch first progress event
 
 			setTimeout(_dispatchSecondProgressEvent, 250); // delay second progress event
 			new AsyncSignalHandler(this, Cursor.REPLY_COMPLETE, _handleSecondCursorProgressCompareReplyLengthAndAmountLoaded, 5000);// handle the async second progress event
 		}
-
 		private function _handleSecondCursorProgressCompareReplyLengthAndAmountLoaded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
 			assertTrue(true);
