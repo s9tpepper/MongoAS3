@@ -5,7 +5,10 @@ package flexUnitTests.as3.mongo.db
 	
 	import as3.mongo.wire.Wire;
 	
+	import flash.net.Socket;
+	
 	import mockolate.mock;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	
@@ -17,9 +20,9 @@ package flexUnitTests.as3.mongo.db
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
 		
-		[Mock(inject="true", type="nice")]
+		[Mock(inject="false", type="nice")]
 		public var wire:Wire;
-
+		
 		private var _testDBName:String = "testDBName";
 		private var _testHost:String = "host";
 		private var _testPort:Number = 2;
@@ -29,6 +32,7 @@ package flexUnitTests.as3.mongo.db
 		public function setUp():void
 		{
 			_db = new TestDB(_testDBName, _testHost, _testPort);
+			wire = nice(Wire, null, [_db]);
 		}
 		
 		[After]

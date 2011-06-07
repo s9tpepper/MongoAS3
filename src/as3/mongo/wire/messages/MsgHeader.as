@@ -44,7 +44,7 @@ package as3.mongo.wire.messages
 			byteArray.writeInt(opCode);
 		}
 
-		protected function updateMessageLength(byteArray:ByteArray):void
+		public function updateMessageLength(byteArray:ByteArray):void
 		{
 			byteArray.position = 0;
 			byteArray.writeInt(byteArray.length);

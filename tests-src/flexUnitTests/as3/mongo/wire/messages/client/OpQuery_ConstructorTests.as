@@ -5,6 +5,7 @@ package flexUnitTests.as3.mongo.wire.messages.client
 	import as3.mongo.wire.messages.client.OpQuery;
 	
 	import org.flexunit.asserts.assertEquals;
+	import org.flexunit.asserts.assertNotNull;
 
 	public class OpQuery_ConstructorTests
 	{		
@@ -34,6 +35,10 @@ package flexUnitTests.as3.mongo.wire.messages.client
 			assertEquals(OpCodes.OP_QUERY, _opQuery.msgHeader.opCode);
 		}
 		
-		
+		[Test]
+		public function OpQuery_onInstantiation_bsonEncoderNotNull():void
+		{
+			assertNotNull(_opQuery.bsonEncoder);
+		}
 	}
 }

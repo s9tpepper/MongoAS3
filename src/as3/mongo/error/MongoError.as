@@ -11,6 +11,7 @@ package as3.mongo.error
 		public static const DOCUMENT_CONSTRUCTOR_ARGS_MUST_BE_COLON_SEPARATED_KEY_VALUE_STRING_PAIRS:String = "Arguments passed into the Document class must be string key:value pairs.";
 		public static const DOCUMENT_CONSTRUCTOR_STRING_ARG_MUST_BE_COLON_SEPARATED:String = "One of the arguments passed into the Document constructor is not a key value pair separated by a colon.";
 		public static const INVALID_OP_CODE:String = "The opCode used is invalid.";
+		public static const QUERY_DOCUMENT_MAY_NOT_BE_NULL:String = "The query Document object may not be null";
 		
 		public function MongoError(message:*="", id:*=0)
 		{

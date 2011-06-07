@@ -1,21 +1,37 @@
 package flexUnitTests.as3.mongo.db
 {
 	import as3.mongo.db.DB;
+	import as3.mongo.db.credentials.Credentials;
 	import as3.mongo.error.MongoError;
+	import as3.mongo.wire.Wire;
 	
+	import mockolate.mock;
+	import mockolate.nice;
+	import mockolate.received;
+	import mockolate.runner.MockolateRule;
+	
+	import org.flexunit.assertThat;
 	import org.flexunit.asserts.fail;
 
 	public class DB_authenticateTests
 	{		
+		[Rule]
+		public var mocks:MockolateRule = new MockolateRule();
+		
+		[Mock(inject="false", type="nice")]
+		public var mockWire:Wire;
+		
+		
 		private var _testDBName:String = "testDBName";
 		private var _testHost:String = "host";
 		private var _testPort:Number = 2;
-		private var _db:DB;
+		private var _db:TestDB;
+		
 		
 		[Before]
 		public function setUp():void
 		{
-			_db = new DB(_testDBName, _testHost, _testPort);
+			_db = new TestDB(_testDBName, _testHost, _testPort);
 		}
 		
 		[After]
@@ -33,6 +49,25 @@ package flexUnitTests.as3.mongo.db
 			_db.authenticate();
 		}
 		
-		
+		[Test]
+		public function authenticate_setCredentialsCalledFirst_getNonceInvokedOnWire():void
+		{
+			_mockWireGetNonceMethod();
+			
+			const credentials:Credentials = new Credentials("aUsername", "aPassword");
+			_db.setCredentials(credentials);
+			
+			_db.authenticate();
+			
+			assertThat(mockWire, received().method("getNonce").noArgs().once());
+		}
+		private function _mockWireGetNonceMethod():void
+		{
+			mockWire = nice(Wire, null, [_db]);
+			mock(mockWire).method("getNonce").noArgs();
+			_db.mockWire = mockWire;
+		}
+
+
 	}
 }

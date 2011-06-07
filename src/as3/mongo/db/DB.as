@@ -5,6 +5,7 @@ package as3.mongo.db
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.Wire;
+	import as3.mongo.wire.cursor.Cursor;
 	
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
@@ -95,6 +96,7 @@ package as3.mongo.db
 			if (!hasCredentials)
 				throw new MongoError(MongoError.CALL_SET_CREDENTIALS_BEFORE_AUTHENTICATE);
 			
+			wire.getNonce();
 		}
 		
 		
@@ -128,11 +130,22 @@ package as3.mongo.db
 		
 		
 		
-		public function findOne(collectionName:String, query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):void
+		public function findOne(collectionName:String, query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):Cursor
+		{
+			_checkForInvalidFindOneParameters(collectionName, query);
+			
+			return wire.findOne(collectionName, query, returnFields, readAllDocumentsCallback);
+		}
+
+		private function _checkForInvalidFindOneParameters(collectionName:String, query:Document):void
 		{
 			if (null == collectionName)
 				throw new MongoError(MongoError.COLLECTION_NAME_MAY_NOT_BE_NULL_OR_EMPTY);
+		
+			if (null == query)
+				throw new MongoError(MongoError.QUERY_DOCUMENT_MAY_NOT_BE_NULL);
 		}
+
 
 		public function connect():void
 		{

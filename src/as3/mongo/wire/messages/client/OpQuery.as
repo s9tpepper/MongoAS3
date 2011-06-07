@@ -33,6 +33,11 @@ package as3.mongo.wire.messages.client
 			_initialize(queryFlags, queryFullCollectionName, queryNumberToSkip, queryNumberToReturn, queryQuery, queryReturnFieldSelector);
 		}
 
+		public function get bsonEncoder():BSONEncoder
+		{
+			return _bsonEncoder;
+		}
+
 		public function get returnFieldSelector():Document
 		{
 			return _returnFieldSelector;
@@ -72,6 +77,8 @@ package as3.mongo.wire.messages.client
 		{
 			createMsgHeader();
 			
+			_bsonEncoder = new BSONEncoder();
+			
 			_flags = queryFlags;
 			_fullCollectionName = queryFullCollectionName;
 			_numberToSkip = queryNumberToSkip;
@@ -96,7 +103,10 @@ package as3.mongo.wire.messages.client
 		{
 			const byteArray:ByteArray = _msgHeader.toByteArray();
 			
+			byteArray.position = 16; // FIXME: The MsgHeader.toByteArray() is moving the position to zero, without setting back to end the header is overwritten
 			writeOpQueryBody(byteArray);
+			
+			_msgHeader.updateMessageLength(byteArray); // TODO: Write unit test to make sure message length is updated.
 			
 			byteArray.position = 0;
 			return byteArray;
@@ -109,10 +119,16 @@ package as3.mongo.wire.messages.client
 			byteArray.writeByte(CSTRING_END_MARKER);
 			byteArray.writeInt(numberToSkip);
 			byteArray.writeInt(numberToReturn);
+			
 			const encodedQueryDocument:ByteArray = _bsonEncoder.encode(_query);
 			byteArray.writeBytes(encodedQueryDocument);
-			const encodedReturnFieldSelectorDocument:ByteArray = _bsonEncoder.encode(returnFieldSelector);
-			byteArray.writeBytes(encodedReturnFieldSelectorDocument);
+			
+			// TODO: Write test for this null return field selector case
+			if (returnFieldSelector)
+			{
+				const encodedReturnFieldSelectorDocument:ByteArray = _bsonEncoder.encode(returnFieldSelector);
+				byteArray.writeBytes(encodedReturnFieldSelectorDocument);
+			}
 		}
 
 
