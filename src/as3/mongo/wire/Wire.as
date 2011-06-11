@@ -2,6 +2,7 @@ package as3.mongo.wire
 {
 	import as3.mongo.db.DB;
 	import as3.mongo.db.document.Document;
+	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.cursor.CursorFactory;
 	import as3.mongo.wire.messages.MessageFactory;
@@ -99,6 +100,11 @@ package as3.mongo.wire
 		
 		public function findOne(collectionName:String, query:Document, returnFields:Document, readAllDocumentsCallback:Function):Cursor
 		{
+			if (false === socket.connected)
+			{
+				throw new MongoError(MongoError.FIND_ONE_SOCKET_NOT_CONNECTED);
+			}
+
 			const cursor:Cursor = _cursorFactory.getCursor(socket);
 			
 			const opQuery:OpQuery = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);

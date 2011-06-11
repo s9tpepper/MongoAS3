@@ -12,6 +12,7 @@ package flexUnitTests.as3.mongo.wire
 	import flash.utils.ByteArray;
 	
 	import mockolate.mock;
+	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 	
@@ -52,6 +53,8 @@ package flexUnitTests.as3.mongo.wire
 			
 			_wire = new TestWire(mockedDB);
 			_wire.mockMessageFactory = mockedMessageFactory;
+
+			mock(mockedSocket).getter("connected").returns(true);
 			_wire.mockSocket = mockedSocket;
 		}
 		
@@ -145,11 +148,25 @@ package flexUnitTests.as3.mongo.wire
 		public function findOne_validInputs_returnsCursorInstance():void
 		{
 			_setUpMocksForMakeOpQueryMessageInvoke();
-			mock(mockedSocket).getter("connected").returns(true);
 			
 			const cursor:Cursor = _wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
 			
 			assertTrue(cursor is Cursor);
+		}
+
+		[Test(expects="as3.mongo.error.MongoError")]
+		public function findOne_socketNotConnected_throwsMongoError():void
+		{
+			_mockDisconnectedSocket();
+
+			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+		}
+
+		private function _mockDisconnectedSocket():void
+		{
+			mockedSocket = nice(Socket);
+			mock(mockedSocket).getter("connected").returns(false);
+			_wire.mockSocket = mockedSocket;
 		}
 	}
 }
