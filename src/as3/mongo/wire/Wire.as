@@ -28,7 +28,11 @@ package as3.mongo.wire
 		private var _db:DB;
 		private var _isConnected:Boolean;
 		private var _nonceCursor:Cursor;
-		
+
+		public function get cursorFactory():CursorFactory
+		{
+			return _cursorFactory;
+		}
 
 		public function get messageFactory():MessageFactory
 		{
@@ -53,7 +57,7 @@ package as3.mongo.wire
 		private function _initializeWire(db:DB):void
 		{
 			_db = db;
-			_socket = new Socket(_db.host, _db.port);
+			_socket = new Socket();
 			_messageFactory = new MessageFactory();
 			_cursorFactory = new CursorFactory();
 		}
@@ -109,7 +113,5 @@ package as3.mongo.wire
 			socket.writeBytes(opQuery.toByteArray());
 			socket.flush();
 		}
-
-
 	}
 }

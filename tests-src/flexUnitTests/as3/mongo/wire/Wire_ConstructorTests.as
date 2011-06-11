@@ -32,5 +32,11 @@ package flexUnitTests.as3.mongo.wire
 		{
 			assertNotNull(_wire.messageFactory);
 		}
+
+		[Test]
+		public function Wire_onInstantiation_hasCursorFactory():void
+		{
+			assertNotNull(_wire.cursorFactory);
+		}
 	}
 }

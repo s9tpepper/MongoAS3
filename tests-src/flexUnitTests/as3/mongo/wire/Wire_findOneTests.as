@@ -145,6 +145,7 @@ package flexUnitTests.as3.mongo.wire
 		public function findOne_validInputs_returnsCursorInstance():void
 		{
 			_setUpMocksForMakeOpQueryMessageInvoke();
+			mock(mockedSocket).getter("connected").returns(true);
 			
 			const cursor:Cursor = _wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
 			

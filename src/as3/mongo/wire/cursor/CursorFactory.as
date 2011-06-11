@@ -10,7 +10,12 @@ package as3.mongo.wire.cursor
 		
 		public function getCursor(socket:Socket):Cursor
 		{
-			return new Cursor(socket);
+			var cursor:Cursor;
+
+			if (socket && socket.connected)
+				cursor = new Cursor(socket);
+
+			return cursor;
 		}
 	}
 }
