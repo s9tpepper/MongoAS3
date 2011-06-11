@@ -8,8 +8,9 @@ package flexUnitTests.as3.mongo.db
 	
 	import flash.events.EventDispatcher;
 	import flash.events.UncaughtErrorEvent;
-	
-	import flexunit.framework.TestCase;
+import flash.net.Socket;
+
+import flexunit.framework.TestCase;
 	
 	import mockolate.mock;
 	import mockolate.nice;
@@ -33,6 +34,9 @@ package flexUnitTests.as3.mongo.db
 
 		[Mock(inject="false", type="nice")]
 		public var mockCursor:Cursor;
+
+        [Mock(inject="false", type="nice")]
+        public var mockSocket:Socket;
 		
 		private var _db:TestDB;
 		private var testDatabaseName:String = "testDBName";
@@ -85,7 +89,8 @@ package flexUnitTests.as3.mongo.db
 		private function mockWireFindOneMethod(testCollectionName:String, testQuery:Document, testResultFieldSelector:Document, testReadResults:Function):void
 		{
 			mockWire = nice(Wire, null, [_db]);
-			mockCursor = nice(Cursor);
+            mockSocket = nice(Socket)
+			mockCursor = nice(Cursor, null, [mockSocket]);
 			mock(mockWire).method("findOne").args(testCollectionName, testQuery, testResultFieldSelector, testReadResults).returns(mockCursor);
 			_db.mockWire = mockWire;
 		}
@@ -98,7 +103,7 @@ package flexUnitTests.as3.mongo.db
 			const testResultFieldSelector:Document = new Document();
 			const testReadResults:Function = function():void {};
 			mockWireFindOneMethod(testCollectionName, testQuery, testResultFieldSelector, testReadResults);
-			
+
 			const cursor:Cursor = _db.findOne(testCollectionName, testQuery, testResultFieldSelector, testReadResults);
 			
 			assertTrue(cursor is Cursor);
