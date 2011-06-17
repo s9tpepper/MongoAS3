@@ -3,33 +3,33 @@ package as3.mongo.wire.messages.client
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.messages.MsgHeader;
 	import as3.mongo.wire.messages.OpCodes;
-	
+
 	import flash.utils.ByteArray;
-	
+
 	import org.bson.BSONEncoder;
-	
+
 	public class OpQuery
 	{
 		protected var _msgHeader:MsgHeader;
 		protected var _bsonEncoder:BSONEncoder;
-		
-		private var _flags:int;
-		private var _fullCollectionName:String;
-		private var _numberToSkip:int;
-		private var _numberToReturn:int;
-		private var _query:Document;
-		private var _returnFieldSelector:Document;
+
+		protected var _flags:int;
+		protected var _fullCollectionName:String;
+		protected var _numberToSkip:int;
+		protected var _numberToReturn:int;
+		protected var _query:Document;
+		protected var _returnFieldSelector:Document;
 		static public const CSTRING_END_MARKER:int = 0;
-		
-		public function OpQuery(queryFlags:int, 
-								queryFullCollectionName:String, 
-								queryNumberToSkip:int, 
-								queryNumberToReturn:int, 
-								queryQuery:Document, 
+
+		public function OpQuery(queryFlags:int,
+								queryFullCollectionName:String,
+								queryNumberToSkip:int,
+								queryNumberToReturn:int,
+								queryQuery:Document,
 								queryReturnFieldSelector:Document=null)
 		{
 			super();
-			
+
 			_initialize(queryFlags, queryFullCollectionName, queryNumberToSkip, queryNumberToReturn, queryQuery, queryReturnFieldSelector);
 		}
 
@@ -68,17 +68,17 @@ package as3.mongo.wire.messages.client
 			return _flags;
 		}
 
-		private function _initialize(queryFlags:int, 
-									 queryFullCollectionName:String, 
-									 queryNumberToSkip:int, 
-									 queryNumberToReturn:int, 
-									 queryQuery:Document, 
+		private function _initialize(queryFlags:int,
+									 queryFullCollectionName:String,
+									 queryNumberToSkip:int,
+									 queryNumberToReturn:int,
+									 queryQuery:Document,
 									 queryReturnFieldSelector:Document):void
 		{
 			createMsgHeader();
-			
+
 			_bsonEncoder = new BSONEncoder();
-			
+
 			_flags = queryFlags;
 			_fullCollectionName = queryFullCollectionName;
 			_numberToSkip = queryNumberToSkip;
@@ -92,8 +92,8 @@ package as3.mongo.wire.messages.client
 			_msgHeader = new MsgHeader();
 			_msgHeader.opCode = OpCodes.OP_QUERY;
 		}
-		
-		
+
+
 		public function get msgHeader():MsgHeader
 		{
 			return _msgHeader;
@@ -102,35 +102,46 @@ package as3.mongo.wire.messages.client
 		public function toByteArray():ByteArray
 		{
 			const byteArray:ByteArray = _msgHeader.toByteArray();
-			
-			byteArray.position = 16; // FIXME: The MsgHeader.toByteArray() is moving the position to zero, without setting back to end the header is overwritten
+
 			writeOpQueryBody(byteArray);
-			
-			_msgHeader.updateMessageLength(byteArray); // TODO: Write unit test to make sure message length is updated.
-			
+
+			_msgHeader.updateMessageLength(byteArray);
+
 			byteArray.position = 0;
 			return byteArray;
 		}
 
 		protected function writeOpQueryBody(byteArray:ByteArray):void
 		{
+			_writeOpQueryParameters(byteArray);
+
+			_writeQueryDocument(byteArray);
+
+			_writeReturnFieldSelector(byteArray);
+		}
+
+		private function _writeOpQueryParameters(byteArray:ByteArray):void
+		{
 			byteArray.writeInt(flags);
 			byteArray.writeUTFBytes(fullCollectionName);
 			byteArray.writeByte(CSTRING_END_MARKER);
 			byteArray.writeInt(numberToSkip);
 			byteArray.writeInt(numberToReturn);
-			
+		}
+
+		private function _writeQueryDocument(byteArray:ByteArray):void
+		{
 			const encodedQueryDocument:ByteArray = _bsonEncoder.encode(_query);
 			byteArray.writeBytes(encodedQueryDocument);
-			
-			// TODO: Write test for this null return field selector case
+		}
+
+		private function _writeReturnFieldSelector(byteArray:ByteArray):void
+		{
 			if (returnFieldSelector)
 			{
 				const encodedReturnFieldSelectorDocument:ByteArray = _bsonEncoder.encode(returnFieldSelector);
 				byteArray.writeBytes(encodedReturnFieldSelectorDocument);
 			}
 		}
-
-
 	}
 }

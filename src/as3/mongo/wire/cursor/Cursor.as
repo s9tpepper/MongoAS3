@@ -1,35 +1,37 @@
 package as3.mongo.wire.cursor
 {
 	import as3.mongo.db.document.Document;
-	
+	import as3.mongo.wire.messages.database.OpReply;
+
 	import flash.events.ProgressEvent;
 	import flash.net.Socket;
 	import flash.utils.Endian;
-	
+
 	import org.bson.BSONDecoder;
 	import org.osflash.signals.Signal;
 
 	public class Cursor
 	{
-		public static const PROGRESS:Signal = new Signal();
-		public static const REPLY_COMPLETE:Signal = new Signal();
-		
+		public static const PROGRESS:Signal             = new Signal();
+		public static const REPLY_COMPLETE:Signal       = new Signal(OpReply);
+
 		// After reading the size of a reply, 4 bytes of the message size have been exhausted. This value is added to the bytesAvailable to update the message size.
-		private static const _READ_RESPONSE_LENGTH:uint = 4; 
-		
-		private var _socket:Socket;
-		private var _isComplete:Boolean;
-		private var _documents:Vector.<Document>;
-		private var _currentReplyLength:int;
-		private var _currentReplyLengthLoaded:int;
-		private var _loadingReply:Boolean;
-		private var _decoder:BSONDecoder;
-		
+		private static const _RESPONSE_READ_LENGTH:uint = 4;
+
+		protected var _socket:Socket;
+		protected var _isComplete:Boolean;
+		protected var _documents:Vector.<Document>;
+		protected var _currentReplyLength:int;
+		protected var _currentReplyLengthLoaded:int;
+		protected var _loadingReply:Boolean;
+		protected var _currentReply:OpReply;
+		protected var _decoder:BSONDecoder;
+
 		public function Cursor(cursorSocket:Socket)
 		{
 			_initializeCursor(cursorSocket);
 		}
-		
+
 		public function get decoder():BSONDecoder
 		{
 			return _decoder;
@@ -59,7 +61,7 @@ package as3.mongo.wire.cursor
 		{
 			return _isComplete;
 		}
-		
+
 		public function get socket():Socket
 		{
 			return _socket;
@@ -68,17 +70,44 @@ package as3.mongo.wire.cursor
 		private function _initializeCursor(cursorSocket:Socket):void
 		{
 			_socket = cursorSocket;
-			
+
 			_isComplete = false;
 			_documents = new Vector.<Document>();
 			_currentReplyLength = -1;
 			_currentReplyLengthLoaded = -1;
 			_decoder = new BSONDecoder();
-			
+
 			_socket.addEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData, false, 0, true);
 		}
-		
+
 		private function _handleSocketData(event:ProgressEvent):void
+		{
+			_initializeReplyLoading();
+
+			_currentReplyLengthLoaded = event.bytesLoaded;
+
+			PROGRESS.dispatch();
+
+			_checkIfReplyIsComplete();
+		}
+
+		private function _checkIfReplyIsComplete():void
+		{
+			if (_currentReplyLengthLoaded == _currentReplyLength)
+			{
+				_loadingReply = false;
+
+				createOpReply();
+				REPLY_COMPLETE.dispatch(_currentReply);
+			}
+		}
+
+		protected function createOpReply():void
+		{
+			_currentReply = new OpReply(_currentReplyLength, _socket);
+		}
+
+		private function _initializeReplyLoading():void
 		{
 			if (!_loadingReply)
 			{
@@ -86,17 +115,7 @@ package as3.mongo.wire.cursor
 				_loadingReply = true;
 				_currentReplyLength = _socket.readInt();
 			}
-			
-			_currentReplyLengthLoaded = _socket.bytesAvailable + _READ_RESPONSE_LENGTH;
-			
-			PROGRESS.dispatch();
-			
-			if (_currentReplyLengthLoaded == _currentReplyLength)
-			{
-				REPLY_COMPLETE.dispatch();
-				trace("reply complete.");
-			}
 		}
-		
+
 	}
 }
