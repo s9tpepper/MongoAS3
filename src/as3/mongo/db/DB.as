@@ -3,75 +3,63 @@ package as3.mongo.db
 	import as3.mongo.db.collection.Collection;
 	import as3.mongo.db.credentials.Credentials;
 	import as3.mongo.db.document.Document;
-	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
 
-	import flash.events.Event;
 	import flash.events.EventDispatcher;
-	import flash.events.IOErrorEvent;
-	import flash.events.SecurityErrorEvent;
-	import flash.net.Socket;
 	import flash.utils.Dictionary;
 
 	import org.osflash.signals.Signal;
-	import org.osflash.signals.natives.NativeSignal;
 
 	public class DB extends EventDispatcher
 	{
+		protected var _collections:Dictionary;
+		protected var _credentials:Credentials;
+		protected var _isConnected:Boolean;
+		protected var _port:uint;
+		protected var _host:String;
+		protected var _isAuthenticated:Boolean;
+		protected var _name:String;
+		protected var _wire:Wire;
+
+		public const CONNECTED:Signal                = new Signal(DB);
+		public const CONNECTION_FAILED:Signal        = new Signal(DB);
+		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
+
 		public function get hasCredentials():Boolean
 		{
-			return (credentials is Credentials);
+			return (_credentials is Credentials);
 		}
-
-		private var _isConnected:Boolean;
 
 		public function get isConnected():Boolean
 		{
 			return _isConnected;
 		}
 
-		private var _port:uint;
-
 		public function get port():uint
 		{
 			return _port;
 		}
-
-		private var _host:String;
 
 		public function get host():String
 		{
 			return _host;
 		}
 
-		private var _isAuthenticated:Boolean;
-
 		public function get isAuthenticated():Boolean
 		{
 			return _isAuthenticated;
 		}
-
-		private var _name:String;
 
 		public function get name():String
 		{
 			return _name;
 		}
 
-		protected var _wire:Wire;
-
 		public function get wire():Wire
 		{
 			return _wire;
 		}
-
-		private var _collections:Dictionary;
-		protected var credentials:Credentials;
-
-		public const CONNECTED:Signal                = new Signal(DB);
-		public const CONNECTION_FAILED:Signal        = new Signal(DB);
-		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
 
 		public function DB(databaseName:String, databaseHost:String, databasePort:uint)
 		{
@@ -91,21 +79,19 @@ package as3.mongo.db
 
 		public function setCredentials(dbCredentials:Credentials):void
 		{
-			credentials = dbCredentials;
+			_credentials = dbCredentials;
 		}
 
 		public function authenticate():void
 		{
-			if (!hasCredentials)
-				throw new MongoError(MongoError.CALL_SET_CREDENTIALS_BEFORE_AUTHENTICATE);
+			DBMethodInputValidator.canAuthenticate(this);
 
 			wire.getNonce();
 		}
 
-
 		public function collection(collectionName:String):Collection
 		{
-			DBInputValidator.checkForInvalidCollectionNames(collectionName);
+			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
 
 			return _getCollection(collectionName);
 		}
@@ -127,11 +113,10 @@ package as3.mongo.db
 								returnFields:Document=null,
 								readAllDocumentsCallback:Function=null):Cursor
 		{
-			DBInputValidator.checkForInvalidFindOneParameters(collectionName, query);
+			DBMethodInputValidator.checkForInvalidFindOneParameters(collectionName, query);
 
 			return wire.findOne(collectionName, query, returnFields, readAllDocumentsCallback);
 		}
-
 
 		public function connect():void
 		{
