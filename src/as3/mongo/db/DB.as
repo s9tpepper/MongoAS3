@@ -13,6 +13,11 @@ package as3.mongo.db
 
 	public class DB extends EventDispatcher
 	{
+		public const AUTHENTICATED:Signal            = new Signal(DB);
+		public const CONNECTED:Signal                = new Signal(DB);
+		public const CONNECTION_FAILED:Signal        = new Signal(DB);
+		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
+
 		protected var _collections:Dictionary;
 		protected var _credentials:Credentials;
 		protected var _isConnected:Boolean;
@@ -22,9 +27,11 @@ package as3.mongo.db
 		protected var _name:String;
 		protected var _wire:Wire;
 
-		public const CONNECTED:Signal                = new Signal(DB);
-		public const CONNECTION_FAILED:Signal        = new Signal(DB);
-		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
+
+		public function get credentials():Credentials
+		{
+			return _credentials;
+		}
 
 		public function get hasCredentials():Boolean
 		{

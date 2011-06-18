@@ -98,9 +98,9 @@ package as3.mongo.wire
 
 		private function _readNonceResponse(opReply:OpReply):void
 		{
-			if (nonceWasReturned(opReply))
+			if (_authOpReplyIsSuccessful(opReply))
 			{
-				_finishAuthentication();
+				_finishAuthentication(opReply.documents[0].nonce);
 			}
 			else
 			{
@@ -108,15 +108,44 @@ package as3.mongo.wire
 			}
 		}
 
-		private function nonceWasReturned(opReply:OpReply):Boolean
+		private function _authOpReplyIsSuccessful(opReply:OpReply):Boolean
 		{
 			return 1 == opReply.numberReturned && opReply.documents[0].ok == 1;
 		}
 
-
-		private function _finishAuthentication():void
+		private function _finishAuthentication(nonce:String):void
 		{
-			trace("_finishAuthentication()");
+			const digest:String        = _db.credentials.getAuthenticationDigest(nonce);
+
+			const authCommand:Document = new Document("authenticate:1", "user:" + _db.credentials.username, "nonce:" + nonce, "key:" + digest);
+			runCommand(authCommand, _readAuthCommandReply);
+		}
+
+		private function _readAuthCommandReply(opReply:OpReply):void
+		{
+			if (_authOpReplyIsSuccessful(opReply))
+			{
+				_db.AUTHENTICATED.dispatch(_db);
+			}
+			else
+			{
+				AUTHENTICATION_PROBLEM.dispatch();
+			}
+		}
+
+		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Cursor
+		{
+			_checkIfSocketIsConnected();
+
+			const cursor:Cursor   = _cursorFactory.getCursor(socket);
+
+			_setReadAllDocumentsCallback(readCommandReplyCallback);
+
+			const opQuery:OpQuery = messageFactory.makeRunCommandOpQueryMessage(_db.name, "$cmd", command);
+
+			_sendMessage(opQuery);
+
+			return cursor;
 		}
 
 		public function findOne(collectionName:String,
