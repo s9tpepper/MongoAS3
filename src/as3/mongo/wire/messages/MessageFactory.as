@@ -9,14 +9,23 @@ package as3.mongo.wire.messages
 		{
 		}
 
+		private function _getFullCollectionName(dbName:String, collectionName:String):String
+		{
+			return dbName + "." + collectionName;
+		}
+
 		public function makeFindOneOpQueryMessage(dbName:String,
 												  collectionName:String,
 												  query:Document,
 												  returnFieldSelector:Document):OpQuery
 		{
-			const fullCollectionName:String = dbName + "." + collectionName;
-
-			return new OpQuery(0, fullCollectionName, 0, 1, query, returnFieldSelector);
+			return new OpQuery(0, _getFullCollectionName(dbName, collectionName), 0, 1, query, returnFieldSelector);
 		}
+
+		public function makeRunCommandOpQueryMessage(dbName:String, collectionName:String, command:Document):OpQuery
+		{
+			return new OpQuery(0, _getFullCollectionName(dbName, collectionName), 0, -1, command, null);
+		}
+
 	}
 }

@@ -139,7 +139,7 @@ package as3.mongo.wire
 
 		private function _setReadAllDocumentsCallback(readAllDocumentsCallback:Function):void
 		{
-			if (readAllDocumentsCallback)
+			if (readAllDocumentsCallback is Function)
 				Cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
 		}
 
