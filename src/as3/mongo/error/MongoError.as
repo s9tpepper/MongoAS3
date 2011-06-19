@@ -15,6 +15,7 @@ package as3.mongo.error
 		public static const QUERY_DOCUMENT_MAY_NOT_BE_NULL:String                                           = "The query Document object may not be null";
 		public static const FIND_ONE_SOCKET_NOT_CONNECTED:String                                            = "The database.connect method must be used so a connection exists before calling findOne method.";
 		public static const NOT_INSTANCE_CLASS:String                                                       = "This class is not meant to be instantiated.";
+		public static const DOCUMENT_MUST_NOT_BE_NULL:String                                                = "The document instance may not be a null value.";
 
 		public function MongoError(message:*="", id:*=0)
 		{

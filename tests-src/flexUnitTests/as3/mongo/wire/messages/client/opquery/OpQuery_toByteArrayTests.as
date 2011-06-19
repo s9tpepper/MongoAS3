@@ -1,4 +1,4 @@
-package flexUnitTests.as3.mongo.wire.messages.client
+package flexUnitTests.as3.mongo.wire.messages.client.opquery
 {
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.messages.MsgHeader;
