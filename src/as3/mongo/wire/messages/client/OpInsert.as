@@ -6,6 +6,9 @@ package as3.mongo.wire.messages.client
 	import as3.mongo.wire.messages.OpCodes;
 
 	import flash.utils.ByteArray;
+	import flash.utils.Endian;
+
+	import org.bson.BSONEncoder;
 
 	public class OpInsert
 	{
@@ -13,10 +16,21 @@ package as3.mongo.wire.messages.client
 		protected var _collectionName:String;
 		protected var _documents:Vector.<Document>;
 		protected var _msgHeader:MsgHeader;
+		protected var _bsonEncoder:BSONEncoder;
 
 		public function OpInsert(insertFlags:int, fullCollectionName:String)
 		{
 			_initializeOpInsert(insertFlags, fullCollectionName);
+		}
+
+		public function get bsonEncoder():BSONEncoder
+		{
+			return _bsonEncoder;
+		}
+
+		public function get totalDocuments():uint
+		{
+			return _documents.length;
 		}
 
 		private function _initializeOpInsert(insertFlags:int, fullCollectionName:String):void
@@ -59,8 +73,38 @@ package as3.mongo.wire.messages.client
 
 		public function toByteArray():ByteArray
 		{
-			// TODO Auto Generated method stub
-			return null;
+			const byteArray:ByteArray = _msgHeader.toByteArray();
+			byteArray.endian = Endian.LITTLE_ENDIAN;
+
+			_writeOpInsertBody(byteArray);
+
+			msgHeader.updateMessageLength(byteArray);
+
+			byteArray.position = 0;
+			return byteArray;
+		}
+
+		private function _writeOpInsertBody(byteArray:ByteArray):void
+		{
+			byteArray.writeInt(_flags);
+			_writeFullCollectionCString(byteArray);
+			_writeDocuments(byteArray);
+		}
+
+		private function _writeFullCollectionCString(byteArray:ByteArray):void
+		{
+			byteArray.writeUTFBytes(_collectionName);
+			byteArray.writeInt(0);
+		}
+
+		private function _writeDocuments(byteArray:ByteArray):void
+		{
+			var documentBytes:ByteArray;
+			for (var i:Number = 0; i < totalDocuments; i++)
+			{
+				documentBytes = _bsonEncoder.encode(_documents[i]);
+				byteArray.writeBytes(documentBytes);
+			}
 		}
 	}
 }

@@ -4,6 +4,7 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.messages.client.OpInsert;
 
+	import org.flexunit.asserts.assertEquals;
 	import org.flexunit.asserts.assertTrue;
 
 	public class OpInsert_addDocumentTests
@@ -33,6 +34,16 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 			_opInsert.addDocument(_testDocument);
 
 			assertTrue(_opInsert.containsDocument(_testDocument));
+		}
+
+		[Test]
+		public function addDocument_aDocumentInstance_totalDocumentsIsOneMoreThanItWas():void
+		{
+			const totalDocumentsBefore:uint = _opInsert.totalDocuments;
+
+			_opInsert.addDocument(_testDocument);
+
+			assertEquals(totalDocumentsBefore + 1, _opInsert.totalDocuments);
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]

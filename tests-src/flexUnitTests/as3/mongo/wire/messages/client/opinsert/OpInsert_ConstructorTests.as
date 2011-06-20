@@ -48,5 +48,11 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 		{
 			assertEquals(OpCodes.OP_INSERT, _opInsert.msgHeader.opCode);
 		}
+
+		[Test]
+		public function OpInsert_onInstantiation_totalDocumentsIsZero():void
+		{
+			assertEquals(0, _opInsert.totalDocuments);
+		}
 	}
 }
