@@ -1,6 +1,7 @@
 package as3.mongo.wire.messages.client
 {
 	import as3.mongo.db.document.Document;
+	import as3.mongo.wire.messages.IMessage;
 	import as3.mongo.wire.messages.MsgHeader;
 	import as3.mongo.wire.messages.OpCodes;
 
@@ -8,7 +9,7 @@ package as3.mongo.wire.messages.client
 
 	import org.bson.BSONEncoder;
 
-	public class OpQuery
+	public class OpQuery implements IMessage
 	{
 		protected var _msgHeader:MsgHeader;
 		protected var _bsonEncoder:BSONEncoder;

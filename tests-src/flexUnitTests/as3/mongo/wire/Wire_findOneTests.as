@@ -4,7 +4,7 @@ package flexUnitTests.as3.mongo.wire
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
-	import as3.mongo.wire.cursor.CursorFactory;
+	import as3.mongo.wire.CursorFactory;
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.database.OpReply;
@@ -132,7 +132,7 @@ package flexUnitTests.as3.mongo.wire
 		{
 			_setUpMocksForMakeOpQueryMessageInvoke();
 			mock(mockedCursorFactory).method("getCursor").args(mockedSocket);
-			_wire.mockCursorFactory = mockedCursorFactory;
+//			_wire.mockCursorFactory = mockedCursorFactory;
 
 			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
 

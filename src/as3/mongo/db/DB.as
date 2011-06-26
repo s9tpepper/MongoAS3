@@ -14,6 +14,7 @@ package as3.mongo.db
 	public class DB extends EventDispatcher
 	{
 		public const AUTHENTICATED:Signal            = new Signal(DB);
+		public const AUTHENTICATION_PROBLEM:Signal   = new Signal(DB);
 		public const CONNECTED:Signal                = new Signal(DB);
 		public const CONNECTION_FAILED:Signal        = new Signal(DB);
 		public const SOCKET_POLICY_FILE_ERROR:Signal = new Signal(DB);
@@ -92,14 +93,12 @@ package as3.mongo.db
 		public function authenticate():void
 		{
 			DBMethodInputValidator.canAuthenticate(this);
-
-			wire.getNonce();
+			new Authentication(this);
 		}
 
 		public function collection(collectionName:String):Collection
 		{
 			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
-
 			return _getCollection(collectionName);
 		}
 

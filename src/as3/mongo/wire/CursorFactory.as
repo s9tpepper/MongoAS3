@@ -1,6 +1,7 @@
-package as3.mongo.wire.cursor
+package as3.mongo.wire
 {
 	import flash.net.Socket;
+	import as3.mongo.wire.cursor.Cursor;
 	
 	public class CursorFactory
 	{

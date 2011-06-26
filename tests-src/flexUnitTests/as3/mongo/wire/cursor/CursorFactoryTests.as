@@ -1,7 +1,7 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
 	import as3.mongo.wire.cursor.Cursor;
-	import as3.mongo.wire.cursor.CursorFactory;
+	import as3.mongo.wire.CursorFactory;
 	import as3.mongo.wire.messages.database.OpReply;
 
 	import flash.net.Socket;
