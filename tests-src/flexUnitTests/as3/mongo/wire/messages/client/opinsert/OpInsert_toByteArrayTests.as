@@ -137,7 +137,7 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 		{
 			const positionOfCStringEndMarker:uint = 20 + _testCollectionName.length;
 			opInsertByteArray.position = positionOfCStringEndMarker;
-			assertEquals(0, opInsertByteArray.readInt());
+			assertEquals(0, opInsertByteArray.readByte());
 		}
 
 		[Test]

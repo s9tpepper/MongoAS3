@@ -101,7 +101,7 @@ package as3.mongo.wire.messages.client
 		private function _writeFullCollectionCString(byteArray:ByteArray):void
 		{
 			byteArray.writeUTFBytes(_collectionName);
-			byteArray.writeInt(0);
+			byteArray.writeByte(0);
 		}
 
 		private function _writeDocuments(byteArray:ByteArray):void
