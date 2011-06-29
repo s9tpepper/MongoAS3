@@ -24,9 +24,14 @@ package flexUnitTests.as3.mongo.wire
 			_socket = mockedSocket;
 		}
 
-		public function set mockMessageFactory(mockedMessageFactor:MessageFactory):void
+		public function set mockMessageFactory(mockedMessageFactory:MessageFactory):void
 		{
-			_messageFactory = mockedMessageFactor;
+			_messageFactory = mockedMessageFactory;
+		}
+
+		public function set mockCursorFactory(mockedCursorFactory:CursorFactory):void
+		{
+			_cursorFactory = mockedCursorFactory;
 		}
 	}
 }

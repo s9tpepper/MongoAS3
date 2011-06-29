@@ -42,21 +42,13 @@ package flexUnitTests.as3.mongo.db.collection
 		{
 			const testDocument:Document = new Document();
 
-			_collection.save(testDocument);
+			_collection.save(testDocument, function():void
+			{
+			});
 
-			assertThat(mockDB, received().method("save").args(_collection.name, testDocument).once());
+			assertThat(mockDB, received().method("save").args(_collection.name, testDocument, instanceOf(Function)).once());
 		}
 
-		[Test]
-		public function save_inputIsDocumentInstance_saveReturnsACursor():void
-		{
-			const testDocument:Document = new Document();
-			mock(mockDB).method("save").args(instanceOf(String), instanceOf(Document)).returns(new Cursor(new Socket()));
-
-			const cursor:Cursor         = _collection.save(testDocument);
-
-			assertTrue(cursor is Cursor);
-		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
 		public function save_inputIsNull_throwsError():void

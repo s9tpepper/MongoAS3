@@ -19,7 +19,7 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 		[Before]
 		public function setUp():void
 		{
-			_opInsert = new OpInsert(_testFlags, _testCollectionName);
+			_opInsert = new OpInsert(_testCollectionName);
 		}
 
 		[After]

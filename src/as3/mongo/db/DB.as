@@ -90,11 +90,12 @@ package as3.mongo.db
 			_credentials = dbCredentials;
 		}
 
-		public function authenticate():void
+		public function authenticate():Boolean
 		{
 			trace("authenticate()");
 			DBMethodInputValidator.canAuthenticate(this);
 			new Authentication(this);
+			return true;
 		}
 
 		public function collection(collectionName:String):Collection
@@ -135,9 +136,9 @@ package as3.mongo.db
 			wire.connect();
 		}
 
-		public function save(collectionName:String, document:Document, readAllDocumentsCallback:Function=null):Cursor
+		public function save(collectionName:String, document:Document, readAllDocumentsCallback:Function=null):void
 		{
-			return wire.save(name, collectionName, document, readAllDocumentsCallback);
+			wire.save(name, collectionName, document, readAllDocumentsCallback);
 		}
 	}
 }

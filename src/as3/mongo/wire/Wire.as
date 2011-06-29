@@ -15,10 +15,11 @@ package as3.mongo.wire
 		protected var _socket:Socket;
 		protected var _messageFactory:MessageFactory;
 
-		private var _db:DB;
-		private var _isConnected:Boolean;
-		private var _messenger:Messenger;
-		private var _connector:Connector;
+		protected var _db:DB;
+		protected var _isConnected:Boolean;
+		protected var _messenger:Messenger;
+		protected var _connector:Connector;
+		protected var _cursorFactory:CursorFactory;
 
 		public function get connector():Connector
 		{
@@ -62,6 +63,7 @@ package as3.mongo.wire
 			_messenger = new Messenger(this);
 			_connector = new Connector(this);
 			_messageFactory = new MessageFactory();
+			_cursorFactory = new CursorFactory();
 		}
 
 		public function connect():void
@@ -78,7 +80,9 @@ package as3.mongo.wire
 		{
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery = messageFactory.makeRunCommandOpQueryMessage(_db.name, "$cmd", command);
-			return _messenger.sendMessage(opQuery, readCommandReplyCallback);
+			const cursor:Cursor   = _getCursor(readCommandReplyCallback);
+			_messenger.sendMessage(opQuery);
+			return cursor;
 		}
 
 		public function findOne(collectionName:String,
@@ -88,8 +92,19 @@ package as3.mongo.wire
 		{
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);
-			return _messenger.sendMessage(opQuery, readAllDocumentsCallback);
+			const cursor:Cursor   = _getCursor(readAllDocumentsCallback);
+			_messenger.sendMessage(opQuery);
+			return cursor;
 		}
+
+		private function _getCursor(readAllDocumentsCallback:Function):Cursor
+		{
+			const cursor:Cursor = _cursorFactory.getCursor(socket);
+			if (readAllDocumentsCallback is Function)
+				cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
+			return cursor;
+		}
+
 
 		private function _checkIfSocketIsConnected():void
 		{
@@ -100,11 +115,11 @@ package as3.mongo.wire
 		public function save(dbName:String,
 							 collectionName:String,
 							 document:Document,
-							 readAllDocumentsCallback:Function=null):Cursor
+							 readAllDocumentsCallback:Function=null):void
 		{
 			_checkIfSocketIsConnected();
 			const opInsert:OpInsert = messageFactory.makeSaveOpInsertMessage(dbName, collectionName, document);
-			return _messenger.sendMessage(opInsert, readAllDocumentsCallback);
+			_messenger.sendMessage(opInsert);
 		}
 	}
 }

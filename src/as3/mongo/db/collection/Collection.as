@@ -36,12 +36,12 @@ package as3.mongo.db.collection
 			return _db.findOne(_name, query, returnFields, readAllDocumentsCallback);
 		}
 
-		public function save(document:Document, readAllDocumentsCallback:Function=null):Cursor
+		public function save(document:Document, readAllDocumentsCallback:Function=null):void
 		{
 			if (null == document)
 				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
 
-			return _db.save(_name, document, readAllDocumentsCallback);
+			_db.save(_name, document, readAllDocumentsCallback);
 		}
 	}
 }

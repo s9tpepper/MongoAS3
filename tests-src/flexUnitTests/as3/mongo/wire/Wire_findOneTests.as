@@ -2,9 +2,9 @@ package flexUnitTests.as3.mongo.wire
 {
 	import as3.mongo.db.DB;
 	import as3.mongo.db.document.Document;
+	import as3.mongo.wire.CursorFactory;
 	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
-	import as3.mongo.wire.CursorFactory;
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.database.OpReply;
@@ -130,14 +130,20 @@ package flexUnitTests.as3.mongo.wire
 		[Test]
 		public function findOne_validInputs_cursorFactoryGetCursorInvoked():void
 		{
-			_setUpMocksForMakeOpQueryMessageInvoke();
-			mock(mockedCursorFactory).method("getCursor").args(mockedSocket);
-//			_wire.mockCursorFactory = mockedCursorFactory;
+			_assembleFindOneValidInputsCursorFactoryGetCursorInvokedTest();
 
 			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
 
 			assertThat(mockedCursorFactory, received().method("getCursor").args(mockedSocket).once());
 		}
+
+		private function _assembleFindOneValidInputsCursorFactoryGetCursorInvokedTest():void
+		{
+			_setUpMocksForMakeOpQueryMessageInvoke();
+			mock(mockedCursorFactory).method("getCursor").args(mockedSocket).returns(new Cursor(mockedSocket));
+			_wire.mockCursorFactory = mockedCursorFactory;
+		}
+
 
 		[Test]
 		public function findOne_validInputs_returnsCursorInstance():void

@@ -10,13 +10,13 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 	{
 
 		private var _opInsert:OpInsert;
-		private var _testFlags:Number          = 8;
+		private var _testFlags:Number          = 0;
 		private var _testCollectionName:String = "dbname.collectionname";
 
 		[Before]
 		public function setUp():void
 		{
-			_opInsert = new OpInsert(_testFlags, _testCollectionName);
+			_opInsert = new OpInsert(_testCollectionName);
 		}
 
 		[After]

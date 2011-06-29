@@ -13,7 +13,6 @@ package as3.mongo.wire
 	public class Messenger
 	{
 		private var _wire:Wire;
-		private var _cursorFactory:CursorFactory;
 
 		public function Messenger(aWire:Wire)
 		{
@@ -28,27 +27,12 @@ package as3.mongo.wire
 		private function _initializeMessenger(aWire:Wire):void
 		{
 			_wire = aWire;
-			_cursorFactory = new CursorFactory();
 		}
 
-		private function _sendMessage(message:IMessage):void
+		public function sendMessage(message:IMessage):void
 		{
 			_wire.socket.writeBytes(message.toByteArray());
 			_wire.socket.flush();
-		}
-
-		private function _setReadAllDocumentsCallback(cursor:Cursor, readAllDocumentsCallback:Function=null):void
-		{
-			if (readAllDocumentsCallback is Function)
-				cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
-		}
-
-		public function sendMessage(message:IMessage, readAllDocsCallback:Function=null):Cursor
-		{
-			const cursor:Cursor = new Cursor(_wire.socket);
-			_setReadAllDocumentsCallback(cursor, readAllDocsCallback);
-			_sendMessage(message);
-			return cursor;
 		}
 	}
 }

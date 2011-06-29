@@ -64,6 +64,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 			_firstProgressEvent = new ProgressEvent(ProgressEvent.SOCKET_DATA, false, false, 100, 200);
 			mock(mockedSocket).method("connect").anyArgs().dispatches(_firstProgressEvent);
 			mock(mockedSocket).method("readInt").noArgs().returns(200);
+			mock(mockedSocket).getter("bytesAvailable").returns(96);
 			_makeCursor();
 		}
 
@@ -104,7 +105,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			_mockFirstProgressEvent();
 
-			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgress);
+			new AsyncSignalHandler(this, _cursor.PROGRESS, _handleProgress);
 
 			// Connect method used here only to get the test progress event to dispatch
 			mockedSocket.connect("", 1);
@@ -121,7 +122,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			_mockFirstProgressEvent();
 
-			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckIsComplete);
+			new AsyncSignalHandler(this, _cursor.PROGRESS, _handleProgressCheckIsComplete);
 
 			// Connect method used here only to get the test progress event to dispatch
 			mockedSocket.connect("", 1);
@@ -138,7 +139,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			_mockFirstProgressEventAndSocket();
 
-			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckCurrentReplyLengthLoaded);
+			new AsyncSignalHandler(this, _cursor.PROGRESS, _handleProgressCheckCurrentReplyLengthLoaded);
 
 			// Connect method used here only to get the test progress event to dispatch
 			mockedSocket.connect("", 1);
@@ -155,7 +156,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			_mockFirstProgressEventAndSocket();
 
-			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleProgressCheckLoadingReplySetToTrue);
+			new AsyncSignalHandler(this, _cursor.PROGRESS, _handleProgressCheckLoadingReplySetToTrue);
 
 			// Connect method used here only to get the test progress event to dispatch
 			mockedSocket.connect("", 1);
@@ -179,7 +180,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 			// delay second progress event
 			setTimeout(_dispatchSecondProgressEvent, 250);
 
-			new AsyncSignalHandler(this, Cursor.PROGRESS, _handleSecondCursorProgress, 5000); // handle the async second progress event
+			new AsyncSignalHandler(this, _cursor.PROGRESS, _handleSecondCursorProgress, 5000); // handle the async second progress event
 		}
 
 		private function _handleSecondCursorProgress(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
@@ -200,7 +201,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 
 			mockedSocket.connect("", 1); // dispatch first progress event
 
-			new AsyncSignalHandler(this, Cursor.REPLY_COMPLETE, _handleSecondCursorProgressCompareReplyLengthAndAmountLoaded, 5000); // handle the async second progress event
+			new AsyncSignalHandler(this, _cursor.REPLY_COMPLETE, _handleSecondCursorProgressCompareReplyLengthAndAmountLoaded, 5000); // handle the async second progress event
 			setTimeout(_dispatchSecondProgressEvent, 250); // delay second progress event
 		}
 
@@ -219,7 +220,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 			mockedSocket.connect("", 1); // dispatch first progress event
 
 			setTimeout(_dispatchSecondProgressEvent, 250); // delay second progress event
-			new AsyncSignalHandler(this, Cursor.REPLY_COMPLETE, _checkLoadingReply, 5000); // handle the async second progress event
+			new AsyncSignalHandler(this, _cursor.REPLY_COMPLETE, _checkLoadingReply, 5000); // handle the async second progress event
 		}
 
 		private function _checkLoadingReply(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
@@ -234,7 +235,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 
 			mockedSocket.connect("", 1); // dispatch first progress event
 
-			new AsyncSignalHandler(this, Cursor.REPLY_COMPLETE, _handleSecondCursorProgressCheckSignalParameters, 5000); // handle the async second progress event
+			new AsyncSignalHandler(this, _cursor.REPLY_COMPLETE, _handleSecondCursorProgressCheckSignalParameters, 5000); // handle the async second progress event
 			setTimeout(_dispatchSecondProgressEvent, 250); // delay second progress event
 		}
 

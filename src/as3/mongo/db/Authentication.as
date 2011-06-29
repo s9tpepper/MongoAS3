@@ -16,7 +16,6 @@ package as3.mongo.db
 
 		public function Authentication(aDB:DB)
 		{
-			trace("Authentication()");
 			_initializeAuthentication(aDB);
 		}
 
@@ -28,17 +27,12 @@ package as3.mongo.db
 
 		private function _getNonce():void
 		{
-			trace("_NONCE_QUERY = " + ObjectUtil.toString(_NONCE_QUERY));
-
 			// FIXME: Need to get rid of having to keep a ref. of the Cursor?
 			_nonceCursor = _db.wire.findOne("$cmd", _NONCE_QUERY, null, _readNonceResponse);
-
-			trace("_getNonce()");
 		}
 
 		private function _readNonceResponse(opReply:OpReply):void
 		{
-			trace("_readNonceResponse()");
 			if (_authOpReplyIsSuccessful(opReply))
 				_finishAuthentication(opReply.documents[0].nonce);
 			else
@@ -52,10 +46,12 @@ package as3.mongo.db
 
 		private function _finishAuthentication(nonce:String):void
 		{
-			trace("_finishAuthentication()");
-			trace("nonce = " + nonce);
 			const digest:String        = _db.credentials.getAuthenticationDigest(nonce);
-			const authCommand:Document = new Document("authenticate:1", "user:" + _db.credentials.username, "nonce:" + nonce, "key:" + digest);
+			const authCommand:Document = new Document();
+			authCommand.put("authenticate", "1");
+			authCommand.put("user", _db.credentials.username);
+			authCommand.put("nonce", nonce);
+			authCommand.put("key", digest);
 
 			// FIXME: Same as _getNonce() method, need to get rid of having to keep a ref. of the Cursor?
 			_nonceCursor = _db.wire.runCommand(authCommand, _readAuthCommandReply);
