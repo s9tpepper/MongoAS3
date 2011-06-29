@@ -31,8 +31,6 @@ package as3.mongo.db.document
 				_validateKeyValuePair(argument);
 
 				_parseKeyValuePair(argument);
-
-				_totalFields++;
 			}
 		}
 
@@ -61,7 +59,7 @@ package as3.mongo.db.document
 
 		public function get totalFields():uint
 		{
-			return _totalFields;
+			return _keys.length;
 		}
 
 		public function getKeyAt(index:uint):*
