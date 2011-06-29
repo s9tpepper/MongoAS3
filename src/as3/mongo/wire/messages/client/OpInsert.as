@@ -2,6 +2,7 @@ package as3.mongo.wire.messages.client
 {
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
+	import as3.mongo.wire.messages.IMessage;
 	import as3.mongo.wire.messages.MsgHeader;
 	import as3.mongo.wire.messages.OpCodes;
 
@@ -10,17 +11,17 @@ package as3.mongo.wire.messages.client
 
 	import org.bson.BSONEncoder;
 
-	public class OpInsert
+	public class OpInsert implements IMessage
 	{
-		protected var _flags:int;
+		protected var _flags:int = 0;
 		protected var _collectionName:String;
 		protected var _documents:Vector.<Document>;
 		protected var _msgHeader:MsgHeader;
 		protected var _bsonEncoder:BSONEncoder;
 
-		public function OpInsert(insertFlags:int, fullCollectionName:String)
+		public function OpInsert(fullCollectionName:String)
 		{
-			_initializeOpInsert(insertFlags, fullCollectionName);
+			_initializeOpInsert(fullCollectionName);
 		}
 
 		public function get bsonEncoder():BSONEncoder
@@ -33,10 +34,11 @@ package as3.mongo.wire.messages.client
 			return _documents.length;
 		}
 
-		private function _initializeOpInsert(insertFlags:int, fullCollectionName:String):void
+		private function _initializeOpInsert(fullCollectionName:String):void
 		{
+			_bsonEncoder = new BSONEncoder();
+
 			_documents = new Vector.<Document>();
-			_flags = insertFlags;
 			_collectionName = fullCollectionName;
 
 			_msgHeader = new MsgHeader();
@@ -74,21 +76,26 @@ package as3.mongo.wire.messages.client
 		public function toByteArray():ByteArray
 		{
 			const byteArray:ByteArray = _msgHeader.toByteArray();
-			byteArray.endian = Endian.LITTLE_ENDIAN;
 
 			_writeOpInsertBody(byteArray);
 
 			msgHeader.updateMessageLength(byteArray);
 
 			byteArray.position = 0;
+			byteArray.endian = Endian.LITTLE_ENDIAN;
 			return byteArray;
 		}
 
 		private function _writeOpInsertBody(byteArray:ByteArray):void
 		{
-			byteArray.writeInt(_flags);
+			_writeInsertFlags(byteArray);
 			_writeFullCollectionCString(byteArray);
 			_writeDocuments(byteArray);
+		}
+
+		private function _writeInsertFlags(byteArray:ByteArray):void
+		{
+			byteArray.writeInt(_flags);
 		}
 
 		private function _writeFullCollectionCString(byteArray:ByteArray):void
@@ -99,11 +106,9 @@ package as3.mongo.wire.messages.client
 
 		private function _writeDocuments(byteArray:ByteArray):void
 		{
-			var documentBytes:ByteArray;
 			for (var i:Number = 0; i < totalDocuments; i++)
 			{
-				documentBytes = _bsonEncoder.encode(_documents[i]);
-				byteArray.writeBytes(documentBytes);
+				byteArray.writeBytes(_bsonEncoder.encode(_documents[i]));
 			}
 		}
 	}

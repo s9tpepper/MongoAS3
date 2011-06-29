@@ -21,6 +21,10 @@ package as3.mongo.wire
 		private function _initializeConnector(aWire:Wire):void
 		{
 			_wire = aWire;
+		}
+
+		private function _addSocketListeners():void
+		{
 			_wire.socket.addEventListener(IOErrorEvent.IO_ERROR, _handleSocketError, false, 0, true);
 			_wire.socket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, _handleSecurityError, false, 0, true);
 			_wire.socket.addEventListener(Event.CONNECT, _handleSocketConnect, false, 0, true);
@@ -28,6 +32,7 @@ package as3.mongo.wire
 
 		public function connect():void
 		{
+			_addSocketListeners();
 			_wire.socket.connect(_wire.db.host, _wire.db.port);
 		}
 

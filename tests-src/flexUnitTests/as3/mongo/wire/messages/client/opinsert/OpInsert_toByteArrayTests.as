@@ -31,13 +31,13 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 
 		private var _opInsert:TestOpInsert;
 		private var _testMsgHeaderByteArray:ByteArray;
-		private var _testFlags:Number          = 8;
+		private var _testFlags:Number          = 0;
 		private var _testCollectionName:String = "aDataBaseName.aCollectionName";
 
 		[Before]
 		public function setUp():void
 		{
-			_opInsert = new TestOpInsert(_testFlags, _testCollectionName);
+			_opInsert = new TestOpInsert(_testCollectionName);
 
 			_mockOpInsertMsgHeader();
 

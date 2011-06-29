@@ -8,9 +8,9 @@ package flexUnitTests.as3.mongo.wire.messages.client.opinsert
 
 	public class TestOpInsert extends OpInsert
 	{
-		public function TestOpInsert(insertFlags:int, fullCollectionName:String)
+		public function TestOpInsert(fullCollectionName:String)
 		{
-			super(insertFlags, fullCollectionName);
+			super(fullCollectionName);
 		}
 
 		public function set mockMsgHeader(aMockedMsgHeader:MsgHeader):void

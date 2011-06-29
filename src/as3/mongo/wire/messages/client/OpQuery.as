@@ -115,9 +115,7 @@ package as3.mongo.wire.messages.client
 		protected function writeOpQueryBody(byteArray:ByteArray):void
 		{
 			_writeOpQueryParameters(byteArray);
-
 			_writeQueryDocument(byteArray);
-
 			_writeReturnFieldSelector(byteArray);
 		}
 

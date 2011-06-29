@@ -1,6 +1,7 @@
 package as3.mongo.wire.messages
 {
 	import as3.mongo.db.document.Document;
+	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 
 	public class MessageFactory
@@ -27,5 +28,11 @@ package as3.mongo.wire.messages
 			return new OpQuery(0, _getFullCollectionName(dbName, collectionName), 0, -1, command, null);
 		}
 
+		public function makeSaveOpInsertMessage(dbName:String, collectionName:String, document:Document):OpInsert
+		{
+			const opInsert:OpInsert = new OpInsert(_getFullCollectionName(dbName, collectionName));
+			opInsert.addDocument(document);
+			return opInsert;
+		}
 	}
 }

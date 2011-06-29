@@ -12,8 +12,8 @@ package as3.mongo.wire.cursor
 
 	public class Cursor
 	{
-		public static const PROGRESS:Signal             = new Signal();
-		public static const REPLY_COMPLETE:Signal       = new Signal(OpReply);
+		public const PROGRESS:Signal                    = new Signal();
+		public const REPLY_COMPLETE:Signal              = new Signal(OpReply);
 
 		// After reading the size of a reply, 4 bytes of the message size have been exhausted. This value is added to the bytesAvailable to update the message size.
 		private static const _RESPONSE_READ_LENGTH:uint = 4;
@@ -82,6 +82,7 @@ package as3.mongo.wire.cursor
 
 		private function _handleSocketData(event:ProgressEvent):void
 		{
+			trace("Cursor._handleSocketData()");
 			_initializeReplyLoading();
 
 			_currentReplyLengthLoaded = event.bytesLoaded;
@@ -109,8 +110,9 @@ package as3.mongo.wire.cursor
 
 		private function _initializeReplyLoading():void
 		{
-			if (!_loadingReply)
+			if (!_loadingReply && _socket.bytesAvailable)
 			{
+				trace("_socket.bytesAvailable = " + _socket.bytesAvailable);
 				_socket.endian = Endian.LITTLE_ENDIAN;
 				_loadingReply = true;
 				_currentReplyLength = _socket.readInt();

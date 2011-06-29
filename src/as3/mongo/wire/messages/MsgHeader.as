@@ -29,7 +29,6 @@ package as3.mongo.wire.messages
 		public function toByteArray():ByteArray
 		{
 			const byteArray:ByteArray = new ByteArray();
-			byteArray.endian = Endian.LITTLE_ENDIAN;
 
 			writeMessageToByteArray(byteArray);
 
@@ -41,6 +40,7 @@ package as3.mongo.wire.messages
 
 		protected function writeMessageToByteArray(byteArray:ByteArray):void
 		{
+			byteArray.endian = Endian.LITTLE_ENDIAN;
 			byteArray.writeInt(0);
 			byteArray.writeInt(requestID);
 			byteArray.writeInt(responseTo);

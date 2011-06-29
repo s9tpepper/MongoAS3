@@ -2,17 +2,19 @@ package as3.mongo.db.collection
 {
 	import as3.mongo.db.DB;
 	import as3.mongo.db.document.Document;
+	import as3.mongo.error.MongoError;
+	import as3.mongo.wire.cursor.Cursor;
 
 	public class Collection
 	{
 		private var _name:String;
 		private var _db:DB;
-		
+
 		public function Collection(collectionName:String, db:DB)
 		{
 			_initializeCollection(collectionName, db);
 		}
-		
+
 		public function get db():DB
 		{
 			return _db;
@@ -28,10 +30,18 @@ package as3.mongo.db.collection
 			_name = collectionName;
 			_db = collectionDB;
 		}
-		
-		public function findOne(query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):void
+
+		public function findOne(query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):Cursor
 		{
-			_db.findOne(_name, query, returnFields, readAllDocumentsCallback);
+			return _db.findOne(_name, query, returnFields, readAllDocumentsCallback);
+		}
+
+		public function save(document:Document, readAllDocumentsCallback:Function=null):Cursor
+		{
+			if (null == document)
+				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
+
+			return _db.save(_name, document, readAllDocumentsCallback);
 		}
 	}
 }

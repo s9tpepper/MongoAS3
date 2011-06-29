@@ -8,6 +8,7 @@ package as3.mongo.wire
 	import flash.events.IOErrorEvent;
 	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
+	import flash.utils.Endian;
 
 	public class Messenger
 	{
@@ -36,16 +37,16 @@ package as3.mongo.wire
 			_wire.socket.flush();
 		}
 
-		private function _setReadAllDocumentsCallback(readAllDocumentsCallback:Function):void
+		private function _setReadAllDocumentsCallback(cursor:Cursor, readAllDocumentsCallback:Function=null):void
 		{
 			if (readAllDocumentsCallback is Function)
-				Cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
+				cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
 		}
 
-		public function sendMessage(message:IMessage, readAllDocsCallback:Function):Cursor
+		public function sendMessage(message:IMessage, readAllDocsCallback:Function=null):Cursor
 		{
-			_setReadAllDocumentsCallback(readAllDocsCallback);
 			const cursor:Cursor = new Cursor(_wire.socket);
+			_setReadAllDocumentsCallback(cursor, readAllDocsCallback);
 			_sendMessage(message);
 			return cursor;
 		}

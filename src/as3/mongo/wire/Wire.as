@@ -5,6 +5,7 @@ package as3.mongo.wire
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.messages.MessageFactory;
+	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 
 	import flash.net.Socket;
@@ -83,7 +84,7 @@ package as3.mongo.wire
 		public function findOne(collectionName:String,
 								query:Document,
 								returnFields:Document,
-								readAllDocumentsCallback:Function):Cursor
+								readAllDocumentsCallback:Function=null):Cursor
 		{
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);
@@ -94,6 +95,16 @@ package as3.mongo.wire
 		{
 			if (false === socket.connected)
 				throw new MongoError(MongoError.FIND_ONE_SOCKET_NOT_CONNECTED);
+		}
+
+		public function save(dbName:String,
+							 collectionName:String,
+							 document:Document,
+							 readAllDocumentsCallback:Function=null):Cursor
+		{
+			_checkIfSocketIsConnected();
+			const opInsert:OpInsert = messageFactory.makeSaveOpInsertMessage(dbName, collectionName, document);
+			return _messenger.sendMessage(opInsert, readAllDocumentsCallback);
 		}
 	}
 }
