@@ -1,5 +1,6 @@
 package flexUnitTests.as3.mongo.db
 {
+	import as3.mongo.db.AuthenticationFactory;
 	import as3.mongo.db.DB;
 	import as3.mongo.db.credentials.Credentials;
 	import as3.mongo.error.MongoError;
@@ -22,6 +23,9 @@ package flexUnitTests.as3.mongo.db
 		[Mock(inject = "false", type = "nice")]
 		public var mockWire:Wire;
 
+		[Mock(inject = "true", type = "nice")]
+		public var mockAuthFactory:AuthenticationFactory;
+
 
 		private var _testDBName:String = "testDBName";
 		private var _testHost:String   = "host";
@@ -33,6 +37,7 @@ package flexUnitTests.as3.mongo.db
 		public function setUp():void
 		{
 			_db = new TestDB(_testDBName, _testHost, _testPort);
+			_db.authenticationFactory = mockAuthFactory;
 		}
 
 		[After]

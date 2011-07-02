@@ -1,12 +1,14 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
-	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.CursorFactory;
+	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.messages.database.OpReply;
+	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.net.Socket;
 
 	import mockolate.mock;
+	import mockolate.nice;
 	import mockolate.runner.MockolateRule;
 
 	import org.flexunit.asserts.assertNull;
@@ -17,14 +19,18 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
 
+		[Mock(inject = "false", type = "nice")]
+		public var mockedOpReplyLoader:OpReplyLoader;
+
 		[Mock(inject = "true", type = "nice")]
-		public var mockedSocket:Socket;
+		public var mockSocket:Socket;
 
 		private var _cursorFactory:CursorFactory;
 
 		[Before]
 		public function setUp():void
 		{
+			mockedOpReplyLoader = nice(OpReplyLoader, null, [mockSocket]);
 			_cursorFactory = new CursorFactory();
 		}
 
@@ -35,23 +41,11 @@ package flexUnitTests.as3.mongo.wire.cursor
 		}
 
 		[Test]
-		public function getCursor_connectedSocket_returnsCursorInstance():void
+		public function getCursor_allScenarios_returnsCursorInstance():void
 		{
-			mock(mockedSocket).getter("connected").returns(true);
-
-			const cursor:Cursor = _cursorFactory.getCursor(mockedSocket);
+			const cursor:Cursor = _cursorFactory.getCursor(mockedOpReplyLoader);
 
 			assertTrue("The getCursor method did not return a cursor object", cursor is Cursor);
-		}
-
-		[Test]
-		public function getCursor_socketIsNotConnected_returnsNull():void
-		{
-			mock(mockedSocket).getter("connected").returns(false);
-
-			const cursor:Cursor = _cursorFactory.getCursor(mockedSocket);
-
-			assertNull(cursor);
 		}
 
 		[Test]

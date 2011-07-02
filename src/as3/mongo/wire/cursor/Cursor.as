@@ -2,6 +2,7 @@ package as3.mongo.wire.cursor
 {
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.messages.database.OpReply;
+	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.events.ProgressEvent;
 	import flash.net.Socket;
@@ -20,16 +21,16 @@ package as3.mongo.wire.cursor
 
 		protected var _socket:Socket;
 		protected var _isComplete:Boolean;
-		protected var _documents:Vector.<Document>;
-		protected var _currentReplyLength:int;
-		protected var _currentReplyLengthLoaded:int;
+		protected var _documents:Vector.<Document>      = new Vector.<Document>();
+		protected var _currentReplyLength:int           = -1;
+		protected var _currentReplyLengthLoaded:int     = -1;
 		protected var _loadingReply:Boolean;
 		protected var _currentReply:OpReply;
 		protected var _decoder:BSONDecoder;
 
-		public function Cursor(cursorSocket:Socket)
+		public function Cursor(opReplyLoader:OpReplyLoader)
 		{
-			_initializeCursor(cursorSocket);
+			_initializeCursor(opReplyLoader);
 		}
 
 		public function get decoder():BSONDecoder
@@ -67,57 +68,15 @@ package as3.mongo.wire.cursor
 			return _socket;
 		}
 
-		private function _initializeCursor(cursorSocket:Socket):void
+		private function _initializeCursor(opReplyLoader:OpReplyLoader):void
 		{
-			_socket = cursorSocket;
-
-			_isComplete = false;
-			_documents = new Vector.<Document>();
-			_currentReplyLength = -1;
-			_currentReplyLengthLoaded = -1;
-			_decoder = new BSONDecoder();
-
-			_socket.addEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData, false, 0, true);
+//			_socket = cursorSocket;
+//
+//			_isComplete = false;
+//			_documents = new Vector.<Document>();
+//			_currentReplyLength = -1;
+//			_currentReplyLengthLoaded = -1;
+//			_decoder = new BSONDecoder();
 		}
-
-		private function _handleSocketData(event:ProgressEvent):void
-		{
-			trace("Cursor._handleSocketData()");
-			_initializeReplyLoading();
-
-			_currentReplyLengthLoaded = event.bytesLoaded;
-
-			PROGRESS.dispatch();
-
-			_checkIfReplyIsComplete();
-		}
-
-		private function _checkIfReplyIsComplete():void
-		{
-			if (_currentReplyLengthLoaded == _currentReplyLength)
-			{
-				_loadingReply = false;
-
-				createOpReply();
-				REPLY_COMPLETE.dispatch(_currentReply);
-			}
-		}
-
-		protected function createOpReply():void
-		{
-			_currentReply = new OpReply(_currentReplyLength, _socket);
-		}
-
-		private function _initializeReplyLoading():void
-		{
-			if (!_loadingReply && _socket.bytesAvailable)
-			{
-				trace("_socket.bytesAvailable = " + _socket.bytesAvailable);
-				_socket.endian = Endian.LITTLE_ENDIAN;
-				_loadingReply = true;
-				_currentReplyLength = _socket.readInt();
-			}
-		}
-
 	}
 }

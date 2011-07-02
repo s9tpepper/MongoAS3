@@ -4,6 +4,7 @@ package flexUnitTests.as3.mongo.db.collection
 	import as3.mongo.db.collection.Collection;
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.messages.database.FindOneResult;
 
 	import flash.net.Socket;
 
@@ -14,6 +15,7 @@ package flexUnitTests.as3.mongo.db.collection
 	import org.flexunit.assertThat;
 	import org.flexunit.asserts.assertTrue;
 	import org.hamcrest.object.instanceOf;
+	import org.osflash.signals.Signal;
 
 	public class Collection_findOneTests
 	{
@@ -41,30 +43,26 @@ package flexUnitTests.as3.mongo.db.collection
 		[Test]
 		public function findOne_allScenarios_dbFindOneInvoked():void
 		{
-			var testCallback:Function = _mockFindOneMethod();
+			_mockFindOneMethod();
 
-			_collection.findOne(new Document(), new Document(), testCallback);
+			_collection.findOne(new Document(), new Document());
 
-			assertThat(mockDB, received().method("findOne").args(_collection.name, instanceOf(Document), instanceOf(Document), testCallback));
+			assertThat(mockDB, received().method("findOne").args(_collection.name, instanceOf(Document), instanceOf(Document)));
 		}
 
 		[Test]
-		public function findOne_allScenarios_returnsCursor():void
+		public function findOne_allScenarios_returnsSignal():void
 		{
-			var testCallback:Function = _mockFindOneMethod();
+			_mockFindOneMethod();
 
-			const cursor:Cursor       = _collection.findOne(new Document(), new Document(), testCallback);
+			const signal:Signal = _collection.findOne(new Document(), new Document());
 
-			assertTrue(cursor is Cursor);
+			assertTrue(signal is Signal);
 		}
 
-		private function _mockFindOneMethod():Function
+		private function _mockFindOneMethod():void
 		{
-			const testCallback:Function = function():void
-			{
-			};
-			mock(mockDB).method("findOne").args(_collection.name, instanceOf(Document), instanceOf(Document), testCallback).returns(new Cursor(new Socket()));
-			return testCallback;
+			mock(mockDB).method("findOne").args(_collection.name, instanceOf(Document), instanceOf(Document)).returns(new Signal(FindOneResult));
 		}
 	}
 }

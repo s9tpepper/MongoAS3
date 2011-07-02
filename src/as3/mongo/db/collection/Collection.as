@@ -5,6 +5,8 @@ package as3.mongo.db.collection
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 
+	import org.osflash.signals.Signal;
+
 	public class Collection
 	{
 		private var _name:String;
@@ -31,9 +33,9 @@ package as3.mongo.db.collection
 			_db = collectionDB;
 		}
 
-		public function findOne(query:Document, returnFields:Document=null, readAllDocumentsCallback:Function=null):Cursor
+		public function findOne(query:Document, returnFields:Document=null):Signal
 		{
-			return _db.findOne(_name, query, returnFields, readAllDocumentsCallback);
+			return _db.findOne(_name, query, returnFields);
 		}
 
 		public function save(document:Document, readAllDocumentsCallback:Function=null):void

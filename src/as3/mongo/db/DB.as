@@ -27,7 +27,18 @@ package as3.mongo.db
 		protected var _isAuthenticated:Boolean;
 		protected var _name:String;
 		protected var _wire:Wire;
+		protected var _authenticationFactory:AuthenticationFactory;
 
+
+		public function get authenticationFactory():AuthenticationFactory
+		{
+			return _authenticationFactory;
+		}
+
+		public function set authenticationFactory(value:AuthenticationFactory):void
+		{
+			_authenticationFactory = value;
+		}
 
 		public function get credentials():Credentials
 		{
@@ -79,6 +90,7 @@ package as3.mongo.db
 			_wire = new Wire(this);
 
 			_collections = new Dictionary();
+			_authenticationFactory = new AuthenticationFactory();
 
 			_name = databaseName;
 			_host = databaseHost;
@@ -94,7 +106,7 @@ package as3.mongo.db
 		{
 			trace("authenticate()");
 			DBMethodInputValidator.canAuthenticate(this);
-			new Authentication(this);
+			authenticationFactory.getAuthentication(this);
 			return true;
 		}
 
@@ -116,19 +128,16 @@ package as3.mongo.db
 			return collection;
 		}
 
-		public function findOne(collectionName:String,
-								query:Document,
-								returnFields:Document=null,
-								readAllDocumentsCallback:Function=null):Cursor
+		public function findOne(collectionName:String, query:Document, returnFields:Document=null):Signal
 		{
 			DBMethodInputValidator.checkForInvalidFindOneParameters(collectionName, query);
 
-			return wire.findOne(collectionName, query, returnFields, readAllDocumentsCallback);
+			return wire.findOne(collectionName, query, returnFields);
 		}
 
-		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Cursor
+		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Signal
 		{
-			return _wire.runCommand(command, readCommandReplyCallback);
+			return _wire.runCommand(command);
 		}
 
 		public function connect():void

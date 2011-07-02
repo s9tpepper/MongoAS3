@@ -1,22 +1,20 @@
 package as3.mongo.wire
 {
-	import flash.net.Socket;
 	import as3.mongo.wire.cursor.Cursor;
-	
+	import as3.mongo.wire.messages.database.OpReplyLoader;
+
 	public class CursorFactory
 	{
 		public function CursorFactory()
 		{
 		}
-		
-		public function getCursor(socket:Socket):Cursor
+
+		public function getCursor(opReplyLoader:OpReplyLoader):Cursor
 		{
-			var cursor:Cursor;
+			if (null == opReplyLoader)
+				return null;
 
-			if (socket && socket.connected)
-				cursor = new Cursor(socket);
-
-			return cursor;
+			return new Cursor(opReplyLoader);
 		}
 	}
 }

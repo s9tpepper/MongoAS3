@@ -7,8 +7,12 @@ package as3.mongo.wire
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
+	import as3.mongo.wire.messages.database.FindOneOpReplyLoader;
+	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.net.Socket;
+
+	import org.osflash.signals.Signal;
 
 	public class Wire
 	{
@@ -76,35 +80,48 @@ package as3.mongo.wire
 			_isConnected = value;
 		}
 
-		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Cursor
+		public function runCommand(command:Document):Signal
 		{
 			_checkIfSocketIsConnected();
-			const opQuery:OpQuery = messageFactory.makeRunCommandOpQueryMessage(_db.name, "$cmd", command);
-			const cursor:Cursor   = _getCursor(readCommandReplyCallback);
+			const opQuery:OpQuery             = messageFactory.makeRunCommandOpQueryMessage(_db.name, "$cmd", command);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
 			_messenger.sendMessage(opQuery);
-			return cursor;
+
+			_activeOpReplyLoaders.push(opReplyLoader);
+			opReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
+			return opReplyLoader.LOADED;
 		}
 
-		public function findOne(collectionName:String,
-								query:Document,
-								returnFields:Document,
-								readAllDocumentsCallback:Function=null):Cursor
+		private var _activeOpReplyLoaders:Vector.<OpReplyLoader> = new Vector.<OpReplyLoader>();
+
+		public function findOne(collectionName:String, query:Document, returnFields:Document=null):Signal
 		{
 			_checkIfSocketIsConnected();
-			const opQuery:OpQuery = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);
-			const cursor:Cursor   = _getCursor(readAllDocumentsCallback);
+			const opQuery:OpQuery                           = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);
+			const findOneOpReplyLoader:FindOneOpReplyLoader = new FindOneOpReplyLoader(socket);
 			_messenger.sendMessage(opQuery);
-			return cursor;
+
+			_activeOpReplyLoaders.push(findOneOpReplyLoader);
+			findOneOpReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
+			return findOneOpReplyLoader.LOADED;
 		}
 
-		private function _getCursor(readAllDocumentsCallback:Function):Cursor
+		private function _onOpReplyLoaded(document:Object):void
 		{
-			const cursor:Cursor = _cursorFactory.getCursor(socket);
-			if (readAllDocumentsCallback is Function)
-				cursor.REPLY_COMPLETE.addOnce(readAllDocumentsCallback);
-			return cursor;
-		}
+			const loadedLoaders:Vector.<OpReplyLoader> = new Vector.<OpReplyLoader>();
+			var loader:OpReplyLoader
+			for each (loader in _activeOpReplyLoaders)
+			{
+				if (loader.isLoaded)
+					loadedLoaders.push(loader);
+			}
 
+			for each (loader in loadedLoaders)
+			{
+				if (_activeOpReplyLoaders.lastIndexOf(loader) != -1)
+					_activeOpReplyLoaders.splice(_activeOpReplyLoaders.lastIndexOf(loader), 1);
+			}
+		}
 
 		private function _checkIfSocketIsConnected():void
 		{

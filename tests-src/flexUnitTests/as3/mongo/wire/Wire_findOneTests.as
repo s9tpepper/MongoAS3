@@ -8,6 +8,7 @@ package flexUnitTests.as3.mongo.wire
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.database.OpReply;
+	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.net.Socket;
 	import flash.utils.ByteArray;
@@ -22,6 +23,7 @@ package flexUnitTests.as3.mongo.wire
 	import org.flexunit.asserts.assertTrue;
 	import org.hamcrest.object.instanceOf;
 	import org.hamcrest.text.re;
+	import org.osflash.signals.Signal;
 
 	public class Wire_findOneTests
 	{
@@ -36,6 +38,9 @@ package flexUnitTests.as3.mongo.wire
 
 		[Mock(inject = "true", type = "nice")]
 		public var mockedSocket:Socket;
+
+		[Mock(inject = "false", type = "nice")]
+		public var mockOpReplyLoader:OpReplyLoader;
 
 		[Mock(inject = "true", type = "nice")]
 		public var mockedCursorFactory:CursorFactory;
@@ -52,6 +57,8 @@ package flexUnitTests.as3.mongo.wire
 		[Before]
 		public function setUp():void
 		{
+			mockOpReplyLoader = nice(OpReplyLoader, null, [mockedSocket]);
+
 			mock(mockedSocket).method("toString").returns("[object MockedSocket]");
 			mock(mockedSocket).getter("bytesAvailable").returns(8);
 
@@ -74,7 +81,7 @@ package flexUnitTests.as3.mongo.wire
 		{
 			var dbName:String = _setUpMocksForMakeOpQueryMessageInvoke();
 
-			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+			_wire.findOne(testCollection, testQuery, testResultFieldsSelector);
 
 			assertThat(mockedMessageFactory, received().method("makeFindOneOpQueryMessage").args(dbName, testCollection, testQuery, testResultFieldsSelector).once());
 		}
@@ -110,7 +117,7 @@ package flexUnitTests.as3.mongo.wire
 
 			mock(mockedSocket).method("writeBytes").args(instanceOf(ByteArray));
 
-			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+			_wire.findOne(testCollection, testQuery, testResultFieldsSelector);
 
 			assertThat(mockedSocket, received().method("writeBytes").arg(instanceOf(ByteArray)).once());
 		}
@@ -122,37 +129,27 @@ package flexUnitTests.as3.mongo.wire
 
 			mock(mockedSocket).method("flush").noArgs();
 
-			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+			_wire.findOne(testCollection, testQuery, testResultFieldsSelector);
 
 			assertThat(mockedSocket, received().method("flush").noArgs().once());
-		}
-
-		[Test]
-		public function findOne_validInputs_cursorFactoryGetCursorInvoked():void
-		{
-			_assembleFindOneValidInputsCursorFactoryGetCursorInvokedTest();
-
-			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
-
-			assertThat(mockedCursorFactory, received().method("getCursor").args(mockedSocket).once());
 		}
 
 		private function _assembleFindOneValidInputsCursorFactoryGetCursorInvokedTest():void
 		{
 			_setUpMocksForMakeOpQueryMessageInvoke();
-			mock(mockedCursorFactory).method("getCursor").args(mockedSocket).returns(new Cursor(mockedSocket));
+			mock(mockedCursorFactory).method("getCursor").args(mockOpReplyLoader).returns(new Cursor(mockOpReplyLoader));
 			_wire.mockCursorFactory = mockedCursorFactory;
 		}
 
 
 		[Test]
-		public function findOne_validInputs_returnsCursorInstance():void
+		public function findOne_validInputs_returnsSignalInstance():void
 		{
 			_setUpMocksForMakeOpQueryMessageInvoke();
 
-			const cursor:Cursor = _wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+			const signal:Signal = _wire.findOne(testCollection, testQuery, testResultFieldsSelector);
 
-			assertTrue(cursor is Cursor);
+			assertTrue(signal is Signal);
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
@@ -160,7 +157,7 @@ package flexUnitTests.as3.mongo.wire
 		{
 			_mockDisconnectedSocket();
 
-			_wire.findOne(testCollection, testQuery, testResultFieldsSelector, readAllDocumentsCallback);
+			_wire.findOne(testCollection, testQuery, testResultFieldsSelector);
 		}
 
 		private function _mockDisconnectedSocket():void

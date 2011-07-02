@@ -1,19 +1,18 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
 	import as3.mongo.wire.cursor.Cursor;
-
-	import flash.net.Socket;
+	import as3.mongo.wire.messages.database.OpReply;
+	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import org.bson.BSONDecoder;
-	import as3.mongo.wire.messages.database.OpReply;
 
 	public class TestCursor extends Cursor
 	{
 		private var _mockOpReply:OpReply;
 
-		public function TestCursor(cursorSocket:Socket)
+		public function TestCursor(opReplyLoader:OpReplyLoader)
 		{
-			super(cursorSocket);
+			super(opReplyLoader);
 		}
 
 		public function get mockOpReply():OpReply
@@ -29,11 +28,6 @@ package flexUnitTests.as3.mongo.wire.cursor
 		public function set mockDecoder(value:BSONDecoder):void
 		{
 			_decoder = value;
-		}
-
-		override protected function createOpReply():void
-		{
-			_currentReply = _mockOpReply;
 		}
 
 	}
