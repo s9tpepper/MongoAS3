@@ -162,5 +162,13 @@ package as3.mongo.wire
 			const opUpdate:OpUpdate = messageFactory.makeUpdateOpUpdateMessage(dbName, collectionName, selector, modifier);
 			_messenger.sendMessage(opUpdate);
 		}
+
+		// TODO: Write integration tests for this
+		public function upsert(dbName:String, collectionName:String, selector:Document, document:Document):void
+		{
+			_checkIfSocketIsConnected();
+			const opUpdate:OpUpdate = messageFactory.makeUpsertOpUpdateMessage(dbName, collectionName, selector, document);
+			_messenger.sendMessage(opUpdate);
+		}
 	}
 }

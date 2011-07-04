@@ -58,5 +58,13 @@ package as3.mongo.wire.messages
 		{
 			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.MULTI, selector, modifier);
 		}
+
+		public function makeUpsertOpUpdateMessage(dbName:String,
+												  collectionName:String,
+												  selector:Document,
+												  document:Document):OpUpdate
+		{
+			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.UPSERT, selector, document);
+		}
 	}
 }

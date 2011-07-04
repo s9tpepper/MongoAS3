@@ -71,5 +71,12 @@ package as3.mongo.db.collection
 			_validateDocumentInstance(modifier);
 			_db.update(name, selector, modifier);
 		}
+
+		public function upsert(selector:Document, document:Document):void
+		{
+			_validateDocumentInstance(selector);
+			_validateDocumentInstance(document);
+			_db.upsert(name, selector, document);
+		}
 	}
 }
