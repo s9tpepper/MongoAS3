@@ -3,6 +3,7 @@ package as3.mongo.db
 	import as3.mongo.db.collection.Collection;
 	import as3.mongo.db.credentials.Credentials;
 	import as3.mongo.db.document.Document;
+	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
 
@@ -152,6 +153,20 @@ package as3.mongo.db
 		public function remove(collectionName:String, selector:Document):void
 		{
 			wire.remove(name, collectionName, selector);
+		}
+
+		public function updateFirst(collectionName:String, selector:Document, update:Document):void
+		{
+			_validateUpdateFirstInputs(collectionName, selector, update);
+
+			wire.updateFirst(name, collectionName, selector, update);
+		}
+
+		private function _validateUpdateFirstInputs(collectionName:String, selector:Document, update:Document):void
+		{
+			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
+			DBMethodInputValidator.checkForInvalidDocumentInputs(selector);
+			DBMethodInputValidator.checkForInvalidDocumentInputs(update);
 		}
 	}
 }

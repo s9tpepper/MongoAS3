@@ -16,6 +16,7 @@ package as3.mongo.error
 		public static const SOCKET_NOT_CONNECTED:String                                                     = "The database.connect method must be used so a connection exists before calling a database method.";
 		public static const NOT_INSTANCE_CLASS:String                                                       = "This class is not meant to be instantiated.";
 		public static const DOCUMENT_MUST_NOT_BE_NULL:String                                                = "The document instance may not be a null value.";
+		public static const INVALID_COLLECTION_NAME_CONTAINS_PERIOD:String                                  = "The collection name is invalid, it contains a period.";
 
 		public function MongoError(message:*="", id:*=0)
 		{

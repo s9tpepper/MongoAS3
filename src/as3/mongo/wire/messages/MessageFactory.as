@@ -4,6 +4,8 @@ package as3.mongo.wire.messages
 	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
+	import as3.mongo.wire.messages.client.OpUpdate;
+	import as3.mongo.wire.messages.client.OpUpdateFlags;
 
 	public class MessageFactory
 	{
@@ -39,6 +41,14 @@ package as3.mongo.wire.messages
 		public function makeRemoveOpDeleteMessage(dbName:String, collectionName:String, selector:Document):OpDelete
 		{
 			return new OpDelete(_getFullCollectionName(dbName, collectionName), selector);
+		}
+
+		public function makeUpdateFirstOpUpdateMessage(dbName:String,
+													   collectionName:String,
+													   selector:Document,
+													   update:Document):OpUpdate
+		{
+			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.NO_FLAGS, selector, update);
 		}
 	}
 }

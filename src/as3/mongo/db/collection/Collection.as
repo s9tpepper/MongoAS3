@@ -58,6 +58,11 @@ package as3.mongo.db.collection
 				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
 		}
 
-
+		public function updateFirst(selector:Document, update:Document):void
+		{
+			_validateDocumentInstance(selector);
+			_validateDocumentInstance(update);
+			_db.updateFirst(name, selector, update);
+		}
 	}
 }

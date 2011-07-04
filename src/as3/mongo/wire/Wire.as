@@ -8,6 +8,7 @@ package as3.mongo.wire
 	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
+	import as3.mongo.wire.messages.client.OpUpdate;
 	import as3.mongo.wire.messages.database.FindOneOpReplyLoader;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
@@ -144,6 +145,14 @@ package as3.mongo.wire
 			_checkIfSocketIsConnected();
 			const opDelete:OpDelete = messageFactory.makeRemoveOpDeleteMessage(dbName, collectionName, selector);
 			_messenger.sendMessage(opDelete);
+		}
+
+		// TODO: Write integration tests for this
+		public function updateFirst(dbName:String, collectionName:String, selector:Document, update:Document):void
+		{
+			_checkIfSocketIsConnected();
+			const opUpdate:OpUpdate = messageFactory.makeUpdateFirstOpUpdateMessage(dbName, collectionName, selector, update);
+			_messenger.sendMessage(opUpdate);
 		}
 	}
 }

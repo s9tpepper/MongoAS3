@@ -21,11 +21,11 @@ package as3.mongo.db
 
 		static public function checkForInvalidCollectionNames(collectionName:String):void
 		{
-			if (null == collectionName)
+			if (null == collectionName || "" == collectionName)
 				throw new MongoError(MongoError.COLLECTION_NAME_MAY_NOT_BE_NULL_OR_EMPTY);
 
-			if ("" == collectionName)
-				throw new MongoError(MongoError.COLLECTION_NAME_MAY_NOT_BE_NULL_OR_EMPTY);
+			if (collectionName.lastIndexOf(".") > -1)
+				throw new MongoError(MongoError.INVALID_COLLECTION_NAME_CONTAINS_PERIOD);
 		}
 
 		public static function canAuthenticate(db:DB):Boolean
@@ -34,6 +34,12 @@ package as3.mongo.db
 				throw new MongoError(MongoError.CALL_SET_CREDENTIALS_BEFORE_AUTHENTICATE);
 
 			return db.hasCredentials;
+		}
+
+		public static function checkForInvalidDocumentInputs(document:Document):void
+		{
+			if (null == document)
+				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
 		}
 	}
 }

@@ -34,6 +34,12 @@ package flexUnitTests.as3.mongo.db
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
+		public function checkForInvalidDocumentInputs_inputIsNull_throwsMongoError():void
+		{
+			DBMethodInputValidator.checkForInvalidDocumentInputs(null);
+		}
+
+		[Test(expects = "as3.mongo.error.MongoError")]
 		public function checkForInvalidCollectionNames_inputIsNull_throwsMongoError():void
 		{
 			DBMethodInputValidator.checkForInvalidCollectionNames(null);
@@ -43,6 +49,12 @@ package flexUnitTests.as3.mongo.db
 		public function checkForInvalidCollectionNames_inputIsEmptyString_throwsMongoError():void
 		{
 			DBMethodInputValidator.checkForInvalidCollectionNames("");
+		}
+
+		[Test(expects = "as3.mongo.error.MongoError")]
+		public function checkForInvalidCollectionNames_inputHasPeriod_throwsMongoError():void
+		{
+			DBMethodInputValidator.checkForInvalidCollectionNames("collection.name");
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
