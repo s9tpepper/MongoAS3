@@ -82,7 +82,6 @@ package as3.mongo.wire.messages.client
 			msgHeader.updateMessageLength(byteArray);
 
 			byteArray.position = 0;
-			byteArray.endian = Endian.LITTLE_ENDIAN;
 			return byteArray;
 		}
 

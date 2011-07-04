@@ -5,6 +5,7 @@ package as3.mongo.wire
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.messages.MessageFactory;
+	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.database.FindOneOpReplyLoader;
@@ -129,11 +130,20 @@ package as3.mongo.wire
 				throw new MongoError(MongoError.SOCKET_NOT_CONNECTED);
 		}
 
+		// TODO: Write integration tests for this
 		public function insert(dbName:String, collectionName:String, document:Document):void
 		{
 			_checkIfSocketIsConnected();
 			const opInsert:OpInsert = messageFactory.makeSaveOpInsertMessage(dbName, collectionName, document);
 			_messenger.sendMessage(opInsert);
+		}
+
+		// TODO: Write integration tests for this
+		public function remove(dbName:String, collectionName:String, selector:Document):void
+		{
+			_checkIfSocketIsConnected();
+			const opDelete:OpDelete = messageFactory.makeRemoveOpDeleteMessage(dbName, collectionName, selector);
+			_messenger.sendMessage(opDelete);
 		}
 	}
 }

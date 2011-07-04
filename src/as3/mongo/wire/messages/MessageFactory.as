@@ -1,6 +1,7 @@
 package as3.mongo.wire.messages
 {
 	import as3.mongo.db.document.Document;
+	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 
@@ -33,6 +34,11 @@ package as3.mongo.wire.messages
 			const opInsert:OpInsert = new OpInsert(_getFullCollectionName(dbName, collectionName));
 			opInsert.addDocument(document);
 			return opInsert;
+		}
+
+		public function makeRemoveOpDeleteMessage(dbName:String, collectionName:String, selector:Document):OpDelete
+		{
+			return new OpDelete(_getFullCollectionName(dbName, collectionName), selector);
 		}
 	}
 }

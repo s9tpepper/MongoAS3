@@ -40,10 +40,24 @@ package as3.mongo.db.collection
 
 		public function insert(document:Document):void
 		{
-			if (null == document)
-				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
+			_validateDocumentInstance(document);
 
 			_db.insert(_name, document);
 		}
+
+		public function remove(selector:Document):void
+		{
+			_validateDocumentInstance(selector);
+
+			_db.remove(name, selector);
+		}
+
+		private function _validateDocumentInstance(document:Document):void
+		{
+			if (null == document)
+				throw new MongoError(MongoError.DOCUMENT_MUST_NOT_BE_NULL);
+		}
+
+
 	}
 }

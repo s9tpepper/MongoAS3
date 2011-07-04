@@ -104,7 +104,6 @@ package as3.mongo.db
 
 		public function authenticate():Boolean
 		{
-			trace("authenticate()");
 			DBMethodInputValidator.canAuthenticate(this);
 			authenticationFactory.getAuthentication(this);
 			return true;
@@ -137,7 +136,7 @@ package as3.mongo.db
 
 		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Signal
 		{
-			return _wire.runCommand(command);
+			return wire.runCommand(command);
 		}
 
 		public function connect():void
@@ -148,6 +147,11 @@ package as3.mongo.db
 		public function insert(collectionName:String, document:Document):void
 		{
 			wire.insert(name, collectionName, document);
+		}
+
+		public function remove(collectionName:String, selector:Document):void
+		{
+			wire.remove(name, collectionName, selector);
 		}
 	}
 }
