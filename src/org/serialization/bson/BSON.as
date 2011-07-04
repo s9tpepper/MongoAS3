@@ -150,7 +150,7 @@ package org.serialization.bson
 			else if (object is ObjectID)
 			{
 
-				type = BSON_DOUBLE;
+				type = BSON_OBJECTID;
 				value = toBSONObjectID(object as ObjectID);
 
 			}
