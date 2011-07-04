@@ -4,9 +4,7 @@ package as3.mongo.wire.messages.client
 	import as3.mongo.wire.messages.IMessage;
 	import as3.mongo.wire.messages.MsgHeader;
 	import as3.mongo.wire.messages.OpCodes;
-
 	import flash.utils.ByteArray;
-
 	import org.bson.BSONEncoder;
 
 	public class OpDelete implements IMessage
@@ -16,7 +14,6 @@ package as3.mongo.wire.messages.client
 		protected var _flags:int;
 		protected var _msgHeader:MsgHeader;
 		protected var _bsonEncoder:BSONEncoder;
-
 
 		public function OpDelete(aFullCollectionName:String, aSelector:Document)
 		{
@@ -57,7 +54,6 @@ package as3.mongo.wire.messages.client
 			_msgHeader.opCode = OpCodes.OP_DELETE;
 		}
 
-
 		public function get selector():Document
 		{
 			return _selector;
@@ -76,6 +72,10 @@ package as3.mongo.wire.messages.client
 			byteArray.writeByte(0);
 			byteArray.writeInt(flags);
 			byteArray.writeBytes(bsonEncoder.encode(selector));
+
+			msgHeader.updateMessageLength(byteArray);
+
+			byteArray.position = 0;
 			return byteArray;
 		}
 	}

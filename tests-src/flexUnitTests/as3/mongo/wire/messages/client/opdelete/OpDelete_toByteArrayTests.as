@@ -121,5 +121,21 @@ package flexUnitTests.as3.mongo.wire.messages.client.opdelete
 
 			assertThat(mockBsonEncoder, received().method("encode").arg(instanceOf(Document)).once());
 		}
+
+		[Test]
+		public function testByteArray_allScenarios_updateMessageLengthInvokedOnMsgHeader():void
+		{
+			const byteArray:ByteArray = _opDelete.toByteArray();
+
+			assertThat(mockMsgHeader, received().method("updateMessageLength").arg(byteArray).once());
+		}
+
+		[Test]
+		public function testByteArray_allScenarios_byteArrayReturnedAtPositionZero():void
+		{
+			const byteArray:ByteArray = _opDelete.toByteArray();
+
+			assertEquals(0, byteArray.position);
+		}
 	}
 }
