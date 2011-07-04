@@ -13,7 +13,7 @@ package as3.mongo.error
 		public static const DOCUMENT_CONSTRUCTOR_STRING_ARG_MUST_BE_COLON_SEPARATED:String                  = "One of the arguments passed into the Document constructor is not a key value pair separated by a colon.";
 		public static const INVALID_OP_CODE:String                                                          = "The opCode used is invalid.";
 		public static const QUERY_DOCUMENT_MAY_NOT_BE_NULL:String                                           = "The query Document object may not be null";
-		public static const FIND_ONE_SOCKET_NOT_CONNECTED:String                                            = "The database.connect method must be used so a connection exists before calling findOne method.";
+		public static const SOCKET_NOT_CONNECTED:String                                                     = "The database.connect method must be used so a connection exists before calling a database method.";
 		public static const NOT_INSTANCE_CLASS:String                                                       = "This class is not meant to be instantiated.";
 		public static const DOCUMENT_MUST_NOT_BE_NULL:String                                                = "The document instance may not be a null value.";
 

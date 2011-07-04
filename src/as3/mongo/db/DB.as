@@ -145,9 +145,9 @@ package as3.mongo.db
 			wire.connect();
 		}
 
-		public function save(collectionName:String, document:Document, readAllDocumentsCallback:Function=null):void
+		public function insert(collectionName:String, document:Document):void
 		{
-			wire.save(name, collectionName, document, readAllDocumentsCallback);
+			wire.insert(name, collectionName, document);
 		}
 	}
 }

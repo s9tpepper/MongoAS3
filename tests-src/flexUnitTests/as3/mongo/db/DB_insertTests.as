@@ -10,7 +10,7 @@ package flexUnitTests.as3.mongo.db
 	import org.flexunit.assertThat;
 	import org.hamcrest.object.instanceOf;
 
-	public class DB_saveTests
+	public class DB_insertTests
 	{
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
@@ -37,13 +37,11 @@ package flexUnitTests.as3.mongo.db
 		}
 
 		[Test]
-		public function save_collectionNameAndDocumentAreNotNull_saveInvokedOnWire():void
+		public function insert_collectionNameAndDocumentAreNotNull_saveInvokedOnWire():void
 		{
-			_db.save("testCollection", new Document(), function():void
-			{
-			});
+			_db.insert("testCollection", new Document());
 
-			assertThat(mockWire, received().method("save").args(instanceOf(String), instanceOf(String), instanceOf(Document), instanceOf(Function)).once());
+			assertThat(mockWire, received().method("insert").args(instanceOf(String), instanceOf(String), instanceOf(Document)).once());
 		}
 	}
 }

@@ -134,14 +134,6 @@ package flexUnitTests.as3.mongo.wire
 			assertThat(mockedSocket, received().method("flush").noArgs().once());
 		}
 
-		private function _assembleFindOneValidInputsCursorFactoryGetCursorInvokedTest():void
-		{
-			_setUpMocksForMakeOpQueryMessageInvoke();
-			mock(mockedCursorFactory).method("getCursor").args(mockOpReplyLoader).returns(new Cursor(mockOpReplyLoader));
-			_wire.mockCursorFactory = mockedCursorFactory;
-		}
-
-
 		[Test]
 		public function findOne_validInputs_returnsSignalInstance():void
 		{

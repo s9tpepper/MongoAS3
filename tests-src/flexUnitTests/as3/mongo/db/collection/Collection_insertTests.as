@@ -15,7 +15,7 @@ package flexUnitTests.as3.mongo.db.collection
 	import org.flexunit.asserts.assertTrue;
 	import org.hamcrest.object.instanceOf;
 
-	public class Collection_saveTests
+	public class Collection_insertTests
 	{
 		[Rule]
 		public var mocks:MockolateRule = new MockolateRule();
@@ -38,22 +38,20 @@ package flexUnitTests.as3.mongo.db.collection
 		}
 
 		[Test]
-		public function save_inputIsDocumentInstance_saveInvokedOnDB():void
+		public function insert_inputIsDocumentInstance_saveInvokedOnDB():void
 		{
 			const testDocument:Document = new Document();
 
-			_collection.save(testDocument, function():void
-			{
-			});
+			_collection.insert(testDocument);
 
-			assertThat(mockDB, received().method("save").args(_collection.name, testDocument, instanceOf(Function)).once());
+			assertThat(mockDB, received().method("insert").args(_collection.name, testDocument).once());
 		}
 
 
 		[Test(expects = "as3.mongo.error.MongoError")]
-		public function save_inputIsNull_throwsError():void
+		public function insert_inputIsNull_throwsError():void
 		{
-			_collection.save(null);
+			_collection.insert(null);
 		}
 	}
 }

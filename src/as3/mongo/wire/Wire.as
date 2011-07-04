@@ -126,13 +126,10 @@ package as3.mongo.wire
 		private function _checkIfSocketIsConnected():void
 		{
 			if (false === socket.connected)
-				throw new MongoError(MongoError.FIND_ONE_SOCKET_NOT_CONNECTED);
+				throw new MongoError(MongoError.SOCKET_NOT_CONNECTED);
 		}
 
-		public function save(dbName:String,
-							 collectionName:String,
-							 document:Document,
-							 readAllDocumentsCallback:Function=null):void
+		public function insert(dbName:String, collectionName:String, document:Document):void
 		{
 			_checkIfSocketIsConnected();
 			const opInsert:OpInsert = messageFactory.makeSaveOpInsertMessage(dbName, collectionName, document);
