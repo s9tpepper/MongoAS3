@@ -64,5 +64,12 @@ package as3.mongo.db.collection
 			_validateDocumentInstance(update);
 			_db.updateFirst(name, selector, update);
 		}
+
+		public function update(selector:Document, modifier:Document):void
+		{
+			_validateDocumentInstance(selector);
+			_validateDocumentInstance(modifier);
+			_db.update(name, selector, modifier);
+		}
 	}
 }

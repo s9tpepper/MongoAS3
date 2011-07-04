@@ -148,10 +148,18 @@ package as3.mongo.wire
 		}
 
 		// TODO: Write integration tests for this
-		public function updateFirst(dbName:String, collectionName:String, selector:Document, update:Document):void
+		public function updateFirst(dbName:String, collectionName:String, selector:Document, document:Document):void
 		{
 			_checkIfSocketIsConnected();
-			const opUpdate:OpUpdate = messageFactory.makeUpdateFirstOpUpdateMessage(dbName, collectionName, selector, update);
+			const opUpdate:OpUpdate = messageFactory.makeUpdateFirstOpUpdateMessage(dbName, collectionName, selector, document);
+			_messenger.sendMessage(opUpdate);
+		}
+
+		// TODO: Write integration tests for this
+		public function update(dbName:String, collectionName:String, selector:Document, modifier:Document):void
+		{
+			_checkIfSocketIsConnected();
+			const opUpdate:OpUpdate = messageFactory.makeUpdateOpUpdateMessage(dbName, collectionName, selector, modifier);
 			_messenger.sendMessage(opUpdate);
 		}
 	}

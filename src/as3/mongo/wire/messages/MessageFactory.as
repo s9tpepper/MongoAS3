@@ -50,5 +50,13 @@ package as3.mongo.wire.messages
 		{
 			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.NO_FLAGS, selector, update);
 		}
+
+		public function makeUpdateOpUpdateMessage(dbName:String,
+												  collectionName:String,
+												  selector:Document,
+												  modifier:Document):OpUpdate
+		{
+			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.MULTI, selector, modifier);
+		}
 	}
 }

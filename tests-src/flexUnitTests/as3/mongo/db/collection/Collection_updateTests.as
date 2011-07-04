@@ -8,9 +8,8 @@ package flexUnitTests.as3.mongo.db.collection
 	import mockolate.runner.MockolateRule;
 
 	import org.flexunit.assertThat;
-	import org.hamcrest.object.instanceOf;
 
-	public class Collection_updateFirstTests
+	public class Collection_updateTests
 	{
 		[Rule]
 		public var mocks:MockolateRule         = new MockolateRule();
@@ -34,25 +33,26 @@ package flexUnitTests.as3.mongo.db.collection
 		}
 
 		[Test]
-		public function updateFirst_validSelectorAndUpdateDocumentInstances_updateFirstInvokedOnDB():void
+		public function update_validInputs_updateInvokedOnDB():void
 		{
-			const testSelector:Document = new Document();
-			const testUpdate:Document   = new Document();
-			_collection.updateFirst(testSelector, testUpdate);
+			var selector:Document = new Document("selector:value");
+			var modifier:Document = new Document("selector:newValue");
 
-			assertThat(mockDB, received().method("updateFirst").args(_testCollectionName, testSelector, testUpdate).once());
+			_collection.update(selector, modifier);
+
+			assertThat(mockDB, received().method("update").args(_testCollectionName, selector, modifier).once());
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
-		public function updateFirst_selectorIsNull_throwsError():void
+		public function update_invalidNullSelector_throwsError():void
 		{
-			_collection.updateFirst(null, new Document());
+			_collection.update(null, new Document());
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]
-		public function updateFirst_updateIsNull_throwsError():void
+		public function update_invalidNullModifier_throwsError():void
 		{
-			_collection.updateFirst(new Document(), null);
+			_collection.update(new Document(), null);
 		}
 	}
 }

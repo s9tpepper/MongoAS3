@@ -157,16 +157,23 @@ package as3.mongo.db
 
 		public function updateFirst(collectionName:String, selector:Document, update:Document):void
 		{
-			_validateUpdateFirstInputs(collectionName, selector, update);
+			_validateUpdateMethodsInputs(collectionName, selector, update);
 
 			wire.updateFirst(name, collectionName, selector, update);
 		}
 
-		private function _validateUpdateFirstInputs(collectionName:String, selector:Document, update:Document):void
+		private function _validateUpdateMethodsInputs(collectionName:String, document1:Document, document2:Document):void
 		{
 			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
-			DBMethodInputValidator.checkForInvalidDocumentInputs(selector);
-			DBMethodInputValidator.checkForInvalidDocumentInputs(update);
+			DBMethodInputValidator.checkForInvalidDocumentInputs(document1);
+			DBMethodInputValidator.checkForInvalidDocumentInputs(document2);
+		}
+
+		public function update(collectionName:String, selector:Document, modifier:Document):void
+		{
+			_validateUpdateMethodsInputs(collectionName, selector, modifier);
+
+			wire.update(name, collectionName, selector, modifier);
 		}
 	}
 }
