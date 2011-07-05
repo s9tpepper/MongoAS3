@@ -13,6 +13,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 
 	import org.flexunit.asserts.assertNull;
 	import org.flexunit.asserts.assertTrue;
+	import org.osflash.signals.Signal;
 
 	public class CursorFactoryTests
 	{
@@ -31,6 +32,8 @@ package flexUnitTests.as3.mongo.wire.cursor
 		public function setUp():void
 		{
 			mockedOpReplyLoader = nice(OpReplyLoader, null, [mockSocket]);
+			mock(mockedOpReplyLoader).getter("LOADED").returns(new Signal(OpReply));
+
 			_cursorFactory = new CursorFactory();
 		}
 

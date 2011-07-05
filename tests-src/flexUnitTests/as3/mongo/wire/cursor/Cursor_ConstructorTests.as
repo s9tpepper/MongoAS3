@@ -1,16 +1,19 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.net.Socket;
 
+	import mockolate.mock;
 	import mockolate.nice;
 	import mockolate.runner.MockolateRule;
 
 	import org.flexunit.asserts.assertEquals;
 	import org.flexunit.asserts.assertFalse;
 	import org.flexunit.asserts.assertNotNull;
+	import org.osflash.signals.Signal;
 
 	public class Cursor_ConstructorTests
 	{
@@ -29,6 +32,8 @@ package flexUnitTests.as3.mongo.wire.cursor
 		public function setUp():void
 		{
 			mockOpReplyLoader = nice(OpReplyLoader, null, [mockSocket]);
+			mock(mockOpReplyLoader).getter("LOADED").returns(new Signal(OpReply));
+
 			_cursor = new Cursor(mockOpReplyLoader);
 		}
 
@@ -39,33 +44,15 @@ package flexUnitTests.as3.mongo.wire.cursor
 		}
 
 		[Test]
-		public function Cursor_onInstantiation_isCompleteIsFalse():void
+		public function Cursor_onInstantiation_readyIsFalse():void
 		{
-			assertFalse(_cursor.isComplete);
+			assertFalse(_cursor.ready);
 		}
 
 		[Test]
-		public function Cursor_onInstantiation_documentsLengthIsZero():void
+		public function Cursor_onInstantiation_hasMoreReturnsZero():void
 		{
-			assertEquals(0, _cursor.documents.length);
-		}
-
-		[Test]
-		public function Cursor_onInstantiation_currentReplyLengthIsNegativeOne():void
-		{
-			assertEquals(-1, _cursor.currentReplyLength);
-		}
-
-		[Test]
-		public function Cursor_onInstantiation_currentReplyLengthLoadedIsNegativeOne():void
-		{
-			assertEquals(-1, _cursor.currentReplyLengthLoaded);
-		}
-
-		[Test]
-		public function Cursor_onInstantiation_loadingReplyIsFalse():void
-		{
-			assertFalse(_cursor.loadingReply);
+			assertEquals(0, _cursor.hasMore());
 		}
 	}
 }
