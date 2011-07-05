@@ -136,7 +136,7 @@ package as3.mongo.db
 			return wire.findOne(collectionName, query, returnFields);
 		}
 
-		public function runCommand(command:Document, readCommandReplyCallback:Function=null):Signal
+		public function runCommand(command:Document):Signal
 		{
 			return wire.runCommand(command);
 		}
