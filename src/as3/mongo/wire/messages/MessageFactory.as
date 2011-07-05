@@ -1,6 +1,7 @@
 package as3.mongo.wire.messages
 {
 	import as3.mongo.db.document.Document;
+	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
@@ -65,6 +66,17 @@ package as3.mongo.wire.messages
 												  document:Document):OpUpdate
 		{
 			return new OpUpdate(_getFullCollectionName(dbName, collectionName), OpUpdateFlags.UPSERT, selector, document);
+		}
+
+		public function makeFindOpQueryMessage(dbName:String,
+											   collectionName:String,
+											   query:Document,
+											   findOptions:FindOptions=null):OpQuery
+		{
+			if (null == findOptions)
+				findOptions = new FindOptions();
+
+			return new OpQuery(findOptions.flags, _getFullCollectionName(dbName, collectionName), findOptions.numberToSkip, findOptions.numberToReturn, query, findOptions.returnFieldSelector);
 		}
 	}
 }

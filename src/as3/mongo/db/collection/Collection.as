@@ -4,6 +4,7 @@ package as3.mongo.db.collection
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.messages.client.FindOptions;
 
 	import org.osflash.signals.Signal;
 
@@ -77,6 +78,12 @@ package as3.mongo.db.collection
 			_validateDocumentInstance(selector);
 			_validateDocumentInstance(document);
 			_db.upsert(name, selector, document);
+		}
+
+		public function find(query:Document, options:FindOptions=null):Cursor
+		{
+			_validateDocumentInstance(query);
+			return _db.find(name, query, options);
 		}
 	}
 }

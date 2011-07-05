@@ -5,6 +5,7 @@ package as3.mongo.wire
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.messages.MessageFactory;
+	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.client.OpDelete;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
@@ -169,6 +170,16 @@ package as3.mongo.wire
 			_checkIfSocketIsConnected();
 			const opUpdate:OpUpdate = messageFactory.makeUpsertOpUpdateMessage(dbName, collectionName, selector, document);
 			_messenger.sendMessage(opUpdate);
+		}
+
+		public function find(dbName:String, collectionName:String, query:Document, options:FindOptions=null):Cursor
+		{
+			_checkIfSocketIsConnected();
+			const opQuery:OpQuery             = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
+			const cursor:Cursor               = _cursorFactory.getCursor(opReplyLoader);
+			_messenger.sendMessage(opQuery);
+			return cursor;
 		}
 	}
 }

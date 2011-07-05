@@ -6,6 +6,7 @@ package as3.mongo.db
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.messages.client.FindOptions;
 
 	import flash.events.EventDispatcher;
 	import flash.utils.Dictionary;
@@ -178,6 +179,13 @@ package as3.mongo.db
 			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
 			DBMethodInputValidator.checkForInvalidDocumentInputs(document1);
 			DBMethodInputValidator.checkForInvalidDocumentInputs(document2);
+		}
+
+		public function find(collectionName:String, query:Document, options:FindOptions=null):Cursor
+		{
+			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
+			DBMethodInputValidator.checkForInvalidDocumentInputs(query);
+			return wire.find(name, collectionName, query, options);
 		}
 	}
 }

@@ -1,30 +1,21 @@
 package flexUnitTests.as3.mongo.db
 {
 	import as3.mongo.db.AuthenticationFactory;
-	import as3.mongo.db.DB;
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.Wire;
-	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.messages.database.FindOneResult;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
-	import flash.events.EventDispatcher;
-	import flash.events.UncaughtErrorEvent;
 	import flash.net.Socket;
-
-	import flexunit.framework.TestCase;
 
 	import mockolate.mock;
 	import mockolate.nice;
 	import mockolate.received;
 	import mockolate.runner.MockolateRule;
 
-	import mx.core.FlexGlobals;
-
 	import org.flexunit.assertThat;
 	import org.flexunit.asserts.assertTrue;
-	import org.hamcrest.object.instanceOf;
 	import org.osflash.signals.Signal;
 
 
@@ -35,9 +26,6 @@ package flexUnitTests.as3.mongo.db
 
 		[Mock(inject = "false", type = "nice")]
 		public var mockWire:Wire;
-
-		[Mock(inject = "false", type = "nice")]
-		public var mockCursor:Cursor;
 
 		[Mock(inject = "false", type = "nice")]
 		public var mockSocket:Socket;
@@ -107,7 +95,6 @@ package flexUnitTests.as3.mongo.db
 			mockWire = nice(Wire, null, [_db]);
 			mockSocket = nice(Socket)
 			mockOpReplyLoader = nice(OpReplyLoader, null, [mockSocket]);
-			mockCursor = nice(Cursor, null, [mockOpReplyLoader]);
 			mock(mockWire).method("findOne").args(testCollectionName, testQuery, testResultFieldSelector).returns(new Signal(FindOneResult));
 			_db.mockWire = mockWire;
 		}

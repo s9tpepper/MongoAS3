@@ -20,6 +20,11 @@ package as3.mongo.wire.messages.database
 			_initializeOpReplyLoader(aSocket);
 		}
 
+		public function get opReply():OpReply
+		{
+			return _opReply;
+		}
+
 		public function get isLoaded():Boolean
 		{
 			return _loaded;
@@ -37,7 +42,6 @@ package as3.mongo.wire.messages.database
 
 		protected function _initializeOpReplyLoader(aSocket:Socket):void
 		{
-			trace("OpReplyLoader._initializeOpReplyLoader()");
 			_socket = aSocket;
 			_socket.addEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData, false, 0, true);
 			_LOADED = new Signal(OpReply);
@@ -45,15 +49,12 @@ package as3.mongo.wire.messages.database
 
 		private function _handleSocketData(event:ProgressEvent):void
 		{
-			trace("OpReplyLoader._handleSocketData()");
 			_initializeReplyLoading();
 			_checkIfReplyIsComplete(event);
 		}
 
 		private function _checkIfReplyIsComplete(event:ProgressEvent):void
 		{
-			trace("_checkIfReplayIsComplete()");
-			trace("(event.bytesLoaded == _currentReplyLength) = " + (event.bytesLoaded == _currentReplyLength).toString());
 			if (event.bytesLoaded == _currentReplyLength)
 			{
 				_loading = false;
@@ -64,7 +65,8 @@ package as3.mongo.wire.messages.database
 
 		protected function _dispatchLoadedSignal():void
 		{
-			LOADED.dispatch(new OpReply(_currentReplyLength, _socket));
+			_opReply = new OpReply(_currentReplyLength, _socket);
+			LOADED.dispatch(_opReply);
 		}
 
 		private function _initializeReplyLoading():void
