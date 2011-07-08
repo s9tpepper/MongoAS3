@@ -80,7 +80,7 @@ package as3.mongo.db.collection
 			_db.upsert(name, selector, document);
 		}
 
-		public function find(query:Document, options:FindOptions=null):Cursor
+		public function find(query:Document, options:FindOptions=null):Signal
 		{
 			_validateDocumentInstance(query);
 			return _db.find(name, query, options);

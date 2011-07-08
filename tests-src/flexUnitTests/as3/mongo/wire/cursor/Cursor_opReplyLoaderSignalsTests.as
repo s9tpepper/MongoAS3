@@ -67,17 +67,17 @@ package flexUnitTests.as3.mongo.wire.cursor
 		}
 
 		[Test(async)]
-		public function loadedSignal_onLoadedSignalDispatched_documentsAddedSignalIsDispatched():void
+		public function loadedSignal_onLoadedSignalDispatched_cursorReadySignalIsDispatched():void
 		{
 			var testOpReply:TestOpReply = new TestOpReply(100, mockSocket);
 			testOpReply.numberReturned = 5;
 
-			new AsyncSignalHandler(this, _cursor.documentsAdded, _handleDocumentsAdded, 5000, testOpReply);
+			new AsyncSignalHandler(this, _cursor.cursorReady, _handleCursorReady, 5000, testOpReply);
 
 			_testLoadedSignal.dispatch(testOpReply);
 		}
 
-		private function _handleDocumentsAdded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
+		private function _handleCursorReady(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
 			assertTrue(event.getSignalArgument(0) is Cursor);
 		}

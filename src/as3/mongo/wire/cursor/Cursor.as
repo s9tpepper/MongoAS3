@@ -14,20 +14,20 @@ package as3.mongo.wire.cursor
 		protected var _ready:Boolean;
 		protected var _totalDocumentsLoaded:uint;
 		protected var _cursorID:Int64;
-		protected var _documents:Dictionary  = new Dictionary();
-		protected var _currentIndex:int      = -1;
-		protected var _lastIndexCached:int   = -1;
-		protected var _activeIndices:Array   = [];
-		protected var _documentsAdded:Signal = new Signal(Cursor);
+		protected var _documents:Dictionary = new Dictionary();
+		protected var _currentIndex:int     = -1;
+		protected var _lastIndexCached:int  = -1;
+		protected var _activeIndices:Array  = [];
+		protected var _cursorReady:Signal   = new Signal(Cursor);
 
 		public function Cursor(opReplyLoader:OpReplyLoader)
 		{
 			_initializeCursor(opReplyLoader);
 		}
 
-		public function get documentsAdded():Signal
+		public function get cursorReady():Signal
 		{
-			return _documentsAdded;
+			return _cursorReady;
 		}
 
 		public function toString():String
@@ -61,7 +61,12 @@ package as3.mongo.wire.cursor
 			_totalDocumentsLoaded += opReply.numberReturned;
 			_cursorID = opReply.cursorID;
 			_cacheDocuments(opReply);
-			_documentsAdded.dispatch(this);
+
+			if (!_ready)
+			{
+				_ready = true;
+				_cursorReady.dispatch(this);
+			}
 		}
 
 		private function _cacheDocuments(opReply:OpReply):void

@@ -206,7 +206,7 @@ package as3.mongo.db
 			DBMethodInputValidator.checkForInvalidDocumentInputs(document2);
 		}
 
-		public function find(collectionName:String, query:Document, options:FindOptions=null):Cursor
+		public function find(collectionName:String, query:Document, options:FindOptions=null):Signal
 		{
 			DBMethodInputValidator.checkForInvalidCollectionNames(collectionName);
 			DBMethodInputValidator.checkForInvalidDocumentInputs(query);

@@ -16,6 +16,7 @@ package flexUnitTests.as3.mongo.db.collection
 
 	import org.flexunit.assertThat;
 	import org.flexunit.asserts.assertTrue;
+	import org.osflash.signals.Signal;
 
 	public class Collection_findTests
 	{
@@ -51,15 +52,15 @@ package flexUnitTests.as3.mongo.db.collection
 		}
 
 		[Test]
-		public function find_validInputs_returnsCursor():void
+		public function find_validInputs_returnsSignal():void
 		{
 			var testDoc:Document        = new Document("hello:world");
 			var findOptions:FindOptions = new FindOptions();
-			mock(mockDB).method("find").returns(new Cursor(new OpReplyLoader(new Socket())));
+			mock(mockDB).method("find").returns(new Signal(Cursor));
 
-			const cursor:Cursor         = _collection.find(testDoc, findOptions);
+			const signal:Signal         = _collection.find(testDoc, findOptions);
 
-			assertTrue(cursor is Cursor);
+			assertTrue(signal is Signal);
 		}
 
 		[Test(expects = "as3.mongo.error.MongoError")]

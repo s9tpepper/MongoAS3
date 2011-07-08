@@ -27,6 +27,7 @@ package as3.mongo.wire
 		protected var _messenger:Messenger;
 		protected var _connector:Connector;
 		protected var _cursorFactory:CursorFactory;
+		protected var _activeCursors:Array;
 
 		public function get connector():Connector
 		{
@@ -71,6 +72,7 @@ package as3.mongo.wire
 			_connector = new Connector(this);
 			_messageFactory = new MessageFactory();
 			_cursorFactory = new CursorFactory();
+			_activeCursors = new Array();
 		}
 
 		public function connect():void
@@ -172,14 +174,25 @@ package as3.mongo.wire
 			_messenger.sendMessage(opUpdate);
 		}
 
-		public function find(dbName:String, collectionName:String, query:Document, options:FindOptions=null):Cursor
+		public function find(dbName:String, collectionName:String, query:Document, options:FindOptions=null):Signal
 		{
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery             = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
 			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
 			const cursor:Cursor               = _cursorFactory.getCursor(opReplyLoader);
+			_activeCursors.push(cursor);
+			cursor.cursorReady.addOnce(_onCursorReady);
+
 			_messenger.sendMessage(opQuery);
-			return cursor;
+			return cursor.cursorReady;
+		}
+
+		private function _onCursorReady(cursor:Cursor):void
+		{
+			if (-1 < _activeCursors.lastIndexOf(cursor))
+			{
+				_activeCursors.splice(_activeCursors.lastIndexOf(cursor), 1);
+			}
 		}
 	}
 }
