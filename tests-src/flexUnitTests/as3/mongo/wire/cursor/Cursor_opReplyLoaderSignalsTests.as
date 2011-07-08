@@ -17,6 +17,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 
 	import org.flexunit.asserts.assertEquals;
 	import org.flexunit.asserts.assertNotNull;
+	import org.flexunit.asserts.assertTrue;
 	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
@@ -54,15 +55,31 @@ package flexUnitTests.as3.mongo.wire.cursor
 			var testOpReply:TestOpReply = new TestOpReply(100, mockSocket);
 			testOpReply.numberReturned = 5;
 
-			new AsyncSignalHandler(this, _testLoadedSignal, _checkDocumentsLoaded, 5000, testOpReply);
+			new AsyncSignalHandler(this, _testLoadedSignal, _checkTotalDocumentsLoaded, 5000, testOpReply);
 
 			_testLoadedSignal.dispatch(testOpReply);
 		}
 
-		private function _checkDocumentsLoaded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
+		private function _checkTotalDocumentsLoaded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
 			const testOpReply:TestOpReply = passThrough as TestOpReply;
-			assertEquals(testOpReply.numberReturned, _cursor.documentsLoaded);
+			assertEquals(testOpReply.numberReturned, _cursor.totalDocumentsLoaded);
+		}
+
+		[Test(async)]
+		public function loadedSignal_onLoadedSignalDispatched_documentsAddedSignalIsDispatched():void
+		{
+			var testOpReply:TestOpReply = new TestOpReply(100, mockSocket);
+			testOpReply.numberReturned = 5;
+
+			new AsyncSignalHandler(this, _cursor.documentsAdded, _handleDocumentsAdded, 5000, testOpReply);
+
+			_testLoadedSignal.dispatch(testOpReply);
+		}
+
+		private function _handleDocumentsAdded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
+		{
+			assertTrue(event.getSignalArgument(0) is Cursor);
 		}
 
 		[Test(async)]

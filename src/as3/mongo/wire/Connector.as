@@ -38,18 +38,18 @@ package as3.mongo.wire
 
 		private function _handleSecurityError(event:Event):void
 		{
-			_wire.db.SOCKET_POLICY_FILE_ERROR.dispatch(_wire.db);
+			_wire.db.socketPolicyFileError.dispatch(_wire.db);
 		}
 
 		private function _handleSocketError(event:Event):void
 		{
-			_wire.db.CONNECTION_FAILED.dispatch(_wire.db);
+			_wire.db.connectionFailed.dispatch(_wire.db);
 		}
 
 		private function _handleSocketConnect(event:Event):void
 		{
 			_wire.setConnected(true);
-			_wire.db.CONNECTED.dispatch(_wire.db);
+			_wire.db.connected.dispatch(_wire.db);
 		}
 	}
 }

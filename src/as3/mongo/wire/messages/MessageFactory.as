@@ -76,6 +76,7 @@ package as3.mongo.wire.messages
 			if (null == findOptions)
 				findOptions = new FindOptions();
 
+			trace("***********>>>>>>>> Getting starting from: " + findOptions.numberToSkip);
 			return new OpQuery(findOptions.flags, _getFullCollectionName(dbName, collectionName), findOptions.numberToSkip, findOptions.numberToReturn, query, findOptions.returnFieldSelector);
 		}
 	}

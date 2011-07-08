@@ -92,7 +92,7 @@ package flexUnitTests.as3.mongo.wire
 			const connectedEvent:Event = new Event(Event.CONNECT);
 			_setUpConnectorToTestEvent(connectedEvent);
 
-			new AsyncSignalHandler(this, mockDB.CONNECTED, _handleMongoConnected);
+			new AsyncSignalHandler(this, mockDB.connected, _handleMongoConnected);
 
 			_connector.connect();
 		}
@@ -108,7 +108,7 @@ package flexUnitTests.as3.mongo.wire
 			const connectedEvent:Event = new Event(Event.CONNECT);
 			_setUpConnectorToTestEvent(connectedEvent);
 
-			new AsyncSignalHandler(this, mockDB.CONNECTED, _handleMongoConnectedCheckIsConnected);
+			new AsyncSignalHandler(this, mockDB.connected, _handleMongoConnectedCheckIsConnected);
 
 			_connector.connect();
 		}
@@ -124,7 +124,7 @@ package flexUnitTests.as3.mongo.wire
 			const ioErrorEvent:Event = new Event(IOErrorEvent.IO_ERROR);
 			_setUpConnectorToTestEvent(ioErrorEvent);
 
-			new AsyncSignalHandler(this, mockDB.CONNECTION_FAILED, _handleMongoConnectionFailed);
+			new AsyncSignalHandler(this, mockDB.connectionFailed, _handleMongoConnectionFailed);
 
 			_connector.connect();
 		}
@@ -140,7 +140,7 @@ package flexUnitTests.as3.mongo.wire
 			const securityError:Event = new Event(SecurityErrorEvent.SECURITY_ERROR);
 			_setUpConnectorToTestEvent(securityError);
 
-			new AsyncSignalHandler(this, mockDB.SOCKET_POLICY_FILE_ERROR, _handleSocketPolicyFileError);
+			new AsyncSignalHandler(this, mockDB.socketPolicyFileError, _handleSocketPolicyFileError);
 
 			_connector.connect();
 		}

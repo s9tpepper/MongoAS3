@@ -5,26 +5,34 @@ package as3.mongo.wire.cursor
 
 	import flash.utils.Dictionary;
 
+	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
 	public class Cursor
 	{
-		private var _opReplyLoader:OpReplyLoader;
-		private var _ready:Boolean;
-		private var _documentsLoaded:uint;
-		private var _cursorID:Int64;
-		private var _documents:Dictionary = new Dictionary();
-		private var _currentIndex:int     = -1;
-		private var _lastIndexCached:int  = -1;
+		protected var _opReplyLoader:OpReplyLoader;
+		protected var _ready:Boolean;
+		protected var _totalDocumentsLoaded:uint;
+		protected var _cursorID:Int64;
+		protected var _documents:Dictionary  = new Dictionary();
+		protected var _currentIndex:int      = -1;
+		protected var _lastIndexCached:int   = -1;
+		protected var _activeIndices:Array   = [];
+		protected var _documentsAdded:Signal = new Signal(Cursor);
 
 		public function Cursor(opReplyLoader:OpReplyLoader)
 		{
 			_initializeCursor(opReplyLoader);
 		}
 
+		public function get documentsAdded():Signal
+		{
+			return _documentsAdded;
+		}
+
 		public function toString():String
 		{
-			return "Cursor{_opReplyLoader:" + _opReplyLoader + ", _ready:" + _ready + ", _documentsLoaded:" + _documentsLoaded + ", _cursorID:" + _cursorID + ", _documents:" + _documents + ", _currentIndex:" + _currentIndex + ", _lastIndexCached:" + _lastIndexCached + ", _activeIndices:[" + _activeIndices + "]}";
+			return "Cursor{_opReplyLoader:" + _opReplyLoader + ", _ready:" + _ready + ", _totalDocumentsLoaded:" + _totalDocumentsLoaded + ", _cursorID:" + _cursorID + ", _documents:" + _documents + ", _currentIndex:" + _currentIndex + ", _lastIndexCached:" + _lastIndexCached + ", _activeIndices:[" + _activeIndices + "]}";
 		}
 
 		public function get cursorID():Int64
@@ -32,9 +40,9 @@ package as3.mongo.wire.cursor
 			return _cursorID;
 		}
 
-		public function get documentsLoaded():uint
+		public function get totalDocumentsLoaded():uint
 		{
-			return _documentsLoaded;
+			return _totalDocumentsLoaded;
 		}
 
 		public function get ready():Boolean
@@ -50,12 +58,11 @@ package as3.mongo.wire.cursor
 
 		private function _onLoaded(opReply:OpReply):void
 		{
-			_documentsLoaded += opReply.numberReturned;
+			_totalDocumentsLoaded += opReply.numberReturned;
 			_cursorID = opReply.cursorID;
 			_cacheDocuments(opReply);
+			_documentsAdded.dispatch(this);
 		}
-
-		private var _activeIndices:Array  = [];
 
 		private function _cacheDocuments(opReply:OpReply):void
 		{

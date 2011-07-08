@@ -39,7 +39,7 @@ package as3.mongo.db
 			if (findOneResult.success)
 				_finishAuthentication(findOneResult.document.nonce);
 			else
-				_db.AUTHENTICATION_PROBLEM.dispatch(_db);
+				_db.authenticationProblem.dispatch(_db);
 		}
 
 		private function _finishAuthentication(nonce:String):void
@@ -57,9 +57,9 @@ package as3.mongo.db
 		private function _readAuthCommandReply(opReply:OpReply):void
 		{
 			if (opReply.documents[0] && opReply.documents[0].ok == 1)
-				_db.AUTHENTICATED.dispatch(_db);
+				_db.authenticated.dispatch(_db);
 			else
-				_db.AUTHENTICATION_PROBLEM.dispatch(_db);
+				_db.authenticationProblem.dispatch(_db);
 		}
 	}
 }
