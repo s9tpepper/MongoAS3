@@ -20,7 +20,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
-	public class Cursor_opReplyLoaderSignalsTests
+	public class Cursor_getNextDocumentTests
 	{
 		[Rule]
 		public var mocks:MockolateRule       = new MockolateRule();
@@ -49,42 +49,28 @@ package flexUnitTests.as3.mongo.wire.cursor
 		}
 
 		[Test(async)]
-		public function loadedSignal_onFirstLoadedSignalDispatched_opReplyNumberReturnedStored():void
+		public function loadedSignal_onFirstLoadedSignalDispatched_getNextDocumentReturnsFirstDocument():void
 		{
 			var testOpReply:TestOpReply = new TestOpReply(100, mockSocket);
-			testOpReply.numberReturned = 5;
+			const testDocuments:Array   = new Array();
+			var firstDoc:Document       = new Document();
+			testDocuments.push(firstDoc);
+			var secondDoc:Document      = new Document();
+			testDocuments.push(secondDoc);
+			testOpReply.documents = testDocuments;
+			testOpReply.startingFrom = 0;
+			testOpReply.numberReturned = 2;
 
-			new AsyncSignalHandler(this, _testLoadedSignal, _checkDocumentsLoaded, 5000, testOpReply);
+			new AsyncSignalHandler(this, _testLoadedSignal, _checkGetNextDocumentReturn, 5000, testDocuments);
 
 			_testLoadedSignal.dispatch(testOpReply);
 		}
 
-		private function _checkDocumentsLoaded(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
+		private function _checkGetNextDocumentReturn(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
 		{
-			const testOpReply:TestOpReply = passThrough as TestOpReply;
-			assertEquals(testOpReply.numberReturned, _cursor.documentsLoaded);
+			const testDocuments:Array = passThrough as Array;
+			assertEquals(testDocuments[0], _cursor.getNextDocument());
 		}
 
-		[Test(async)]
-		public function loadedSignal_onFirstLoadedSignalDispatched_cursorIdIsSet():void
-		{
-			var testOpReply:TestOpReply = new TestOpReply(100, mockSocket);
-			testOpReply.numberReturned = 5;
-			const byteArray:ByteArray   = new ByteArray()
-			byteArray.writeInt(0);
-			byteArray.writeInt(0);
-			byteArray.position = 0;
-			testOpReply.cursorID = new Int64(byteArray);
-
-			new AsyncSignalHandler(this, _testLoadedSignal, _checkCursorId, 5000, testOpReply);
-
-			_testLoadedSignal.dispatch(testOpReply);
-		}
-
-		private function _checkCursorId(event:AsyncSignalHandlerEvent, passThrough:Object=null):void
-		{
-			const testOpReply:TestOpReply = passThrough as TestOpReply;
-			assertEquals(testOpReply.cursorID, _cursor.cursorID);
-		}
 	}
 }

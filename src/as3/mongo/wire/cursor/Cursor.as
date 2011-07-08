@@ -1,6 +1,5 @@
 package as3.mongo.wire.cursor
 {
-	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
@@ -15,8 +14,8 @@ package as3.mongo.wire.cursor
 		private var _documentsLoaded:uint;
 		private var _cursorID:Int64;
 		private var _documents:Dictionary = new Dictionary();
-		private var _currentIndex:uint;
-		private var _lastIndexCached:uint;
+		private var _currentIndex:int     = -1;
+		private var _lastIndexCached:int  = -1;
 
 		public function Cursor(opReplyLoader:OpReplyLoader)
 		{
@@ -89,24 +88,44 @@ package as3.mongo.wire.cursor
 			return nextDocument;
 		}
 
-		public function getNextDocumentIndex():uint
+		public function getNextDocumentIndex():int
 		{
-			var nextCurrentIndex = _currentIndex + 1;
+			var nextDocumentIndex:int = -1;
 
-			if (null == _documents[nextCurrentIndex])
+			if (_activeIndices.length)
+				nextDocumentIndex = _getNextValidIndex(nextDocumentIndex);
+
+			return nextDocumentIndex;
+		}
+
+		private function _getNextValidIndex(nextDocumentIndex:int):int
+		{
+			nextDocumentIndex = _currentIndex + 1;
+
+			if (null == _documents[nextDocumentIndex])
+				nextDocumentIndex = _calculateNextDocumentIndex(nextDocumentIndex);
+
+			if (_lastIndexSearchedIsEmpty(nextDocumentIndex))
+				nextDocumentIndex = _currentIndex;
+
+			return nextDocumentIndex;
+		}
+
+		private function _lastIndexSearchedIsEmpty(nextCurrentIndex:int):Boolean
+		{
+			return null == _documents[nextCurrentIndex];
+		}
+
+		private function _calculateNextDocumentIndex(nextCurrentIndex:int):int
+		{
+			for (var i:uint = nextCurrentIndex; i < _lastIndexCached; i++)
 			{
-				for (var i:uint = nextCurrentIndex; i < _lastIndexCached; i++)
+				if (null != _documents[i])
 				{
-					if (null != _documents[i])
-					{
-						nextCurrentIndex = i;
-						break;
-					}
+					nextCurrentIndex = i;
+					break;
 				}
 			}
-
-			if (null == _documents[nextCurrentIndex])
-				return _currentIndex;
 
 			return nextCurrentIndex;
 		}
