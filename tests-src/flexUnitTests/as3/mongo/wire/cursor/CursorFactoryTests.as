@@ -1,7 +1,11 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
+	import as3.mongo.db.DB;
 	import as3.mongo.wire.CursorFactory;
+	import as3.mongo.wire.Wire;
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.cursor.GetMoreMessage;
+	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
@@ -23,8 +27,14 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Mock(inject = "false", type = "nice")]
 		public var mockedOpReplyLoader:OpReplyLoader;
 
+		[Mock(inject = "false", type = "nice")]
+		public var mockWire:Wire;
+
 		[Mock(inject = "true", type = "nice")]
 		public var mockSocket:Socket;
+
+		[Mock(inject = "true", type = "nice")]
+		public var mockDB:DB;
 
 		private var _cursorFactory:CursorFactory;
 
@@ -33,6 +43,7 @@ package flexUnitTests.as3.mongo.wire.cursor
 		{
 			mockedOpReplyLoader = nice(OpReplyLoader, null, [mockSocket]);
 			mock(mockedOpReplyLoader).getter("LOADED").returns(new Signal(OpReply));
+			mockWire = nice(Wire, null, [mockDB]);
 
 			_cursorFactory = new CursorFactory();
 		}
@@ -46,7 +57,8 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test]
 		public function getCursor_allScenarios_returnsCursorInstance():void
 		{
-			const cursor:Cursor = _cursorFactory.getCursor(mockedOpReplyLoader);
+			const cursor:Cursor                 = _cursorFactory.getCursor(mockedOpReplyLoader);
+			const getMoreMessage:GetMoreMessage = new GetMoreMessage("aDBName", "aCollectionName", new FindOptions(), mockWire, cursor);
 
 			assertTrue("The getCursor method did not return a cursor object", cursor is Cursor);
 		}
@@ -54,7 +66,8 @@ package flexUnitTests.as3.mongo.wire.cursor
 		[Test]
 		public function getCursor_socketReferenceIsNull_returnsNull():void
 		{
-			const cursor:Cursor = _cursorFactory.getCursor(null);
+			const cursor:Cursor                 = _cursorFactory.getCursor(null);
+			const getMoreMessage:GetMoreMessage = new GetMoreMessage("aDBName", "aCollectionName", new FindOptions(), mockWire, cursor);
 
 			assertNull(cursor);
 		}

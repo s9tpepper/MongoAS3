@@ -1,6 +1,7 @@
 package flexUnitTests.as3.mongo.wire.cursor
 {
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.cursor.GetMoreMessage;
 	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
@@ -25,10 +26,14 @@ package flexUnitTests.as3.mongo.wire.cursor
 			_mockOpReply = value;
 		}
 
-		public function set mockDecoder(value:BSONDecoder):void
+		public function set mockGetMoreMessage(value:GetMoreMessage):void
 		{
-			_decoder = value;
+			_getMoreMessage = value;
 		}
 
+//		public function set mockDecoder(value:BSONDecoder):void
+//		{
+//			_decoder = value;
+//		}
 	}
 }

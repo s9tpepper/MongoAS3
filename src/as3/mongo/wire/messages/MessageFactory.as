@@ -3,10 +3,13 @@ package as3.mongo.wire.messages
 	import as3.mongo.db.document.Document;
 	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.client.OpDelete;
+	import as3.mongo.wire.messages.client.OpGetMore;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.client.OpUpdate;
 	import as3.mongo.wire.messages.client.OpUpdateFlags;
+
+	import org.serialization.bson.Int64;
 
 	public class MessageFactory
 	{
@@ -78,6 +81,14 @@ package as3.mongo.wire.messages
 
 			trace("***********>>>>>>>> Getting starting from: " + findOptions.numberToSkip);
 			return new OpQuery(findOptions.flags, _getFullCollectionName(dbName, collectionName), findOptions.numberToSkip, findOptions.numberToReturn, query, findOptions.returnFieldSelector);
+		}
+
+		public function makeGetMoreOpGetMoreMessage(dbName:String,
+													collectionName:String,
+													numberToReturn:int,
+													cursorID:Int64):OpGetMore
+		{
+			return new OpGetMore(_getFullCollectionName(dbName, collectionName), numberToReturn, cursorID);
 		}
 	}
 }

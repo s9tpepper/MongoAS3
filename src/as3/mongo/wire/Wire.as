@@ -4,18 +4,22 @@ package as3.mongo.wire
 	import as3.mongo.db.document.Document;
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
+	import as3.mongo.wire.cursor.GetMoreMessage;
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.client.OpDelete;
+	import as3.mongo.wire.messages.client.OpGetMore;
 	import as3.mongo.wire.messages.client.OpInsert;
 	import as3.mongo.wire.messages.client.OpQuery;
 	import as3.mongo.wire.messages.client.OpUpdate;
 	import as3.mongo.wire.messages.database.FindOneOpReplyLoader;
+	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 
 	import flash.net.Socket;
 
 	import org.osflash.signals.Signal;
+	import org.serialization.bson.Int64;
 
 	public class Wire
 	{
@@ -179,7 +183,9 @@ package as3.mongo.wire
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery             = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
 			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
+
 			const cursor:Cursor               = _cursorFactory.getCursor(opReplyLoader);
+			cursor.getMoreMessage = new GetMoreMessage(dbName, collectionName, options, this, cursor);
 			_activeCursors.push(cursor);
 			cursor.cursorReady.addOnce(_onCursorReady);
 
@@ -193,6 +199,18 @@ package as3.mongo.wire
 			{
 				_activeCursors.splice(_activeCursors.lastIndexOf(cursor), 1);
 			}
+		}
+
+		public function getMore(dbName:String, collectionName:String, options:FindOptions, cursorID:Int64):Signal
+		{
+			_checkIfSocketIsConnected();
+
+			const opGetMore:OpGetMore         = messageFactory.makeGetMoreOpGetMoreMessage(dbName, collectionName, options.numberToReturn, cursorID);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
+			_messenger.sendMessage(opGetMore);
+			_activeOpReplyLoaders.push(opReplyLoader);
+			opReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
+			return opReplyLoader.LOADED;
 		}
 	}
 }

@@ -19,10 +19,22 @@ package as3.mongo.wire.cursor
 		protected var _lastIndexCached:int  = -1;
 		protected var _activeIndices:Array  = [];
 		protected var _cursorReady:Signal   = new Signal(Cursor);
+		protected var _gotMore:Signal       = new Signal(Cursor);
+		protected var _getMoreMessage:GetMoreMessage;
 
 		public function Cursor(opReplyLoader:OpReplyLoader)
 		{
 			_initializeCursor(opReplyLoader);
+		}
+
+		public function set getMoreMessage(value:GetMoreMessage):void
+		{
+			_getMoreMessage = value;
+		}
+
+		public function get gotMore():Signal
+		{
+			return _gotMore;
 		}
 
 		public function get cursorReady():Signal
@@ -110,6 +122,14 @@ package as3.mongo.wire.cursor
 			return nextDocumentIndex;
 		}
 
+		public function getMore():Signal
+		{
+			_getMoreMessage.send();
+
+			return gotMore;
+		}
+
+
 		private function _getNextValidIndex(nextDocumentIndex:int):int
 		{
 			nextDocumentIndex = _currentIndex + 1;
@@ -140,6 +160,26 @@ package as3.mongo.wire.cursor
 			}
 
 			return nextCurrentIndex;
+		}
+
+		internal function handleGotMoreReply(opReply:OpReply):void
+		{
+			_cursorID = opReply.cursorID;
+			_totalDocumentsLoaded += opReply.numberReturned;
+			_cacheDocuments(opReply);
+
+			gotMore.dispatch(this);
+		}
+
+		public function toArray():Array
+		{
+			const items:Array = [];
+			var index:int;
+			for each (index in _activeIndices)
+			{
+				items[index] = _documents[index];
+			}
+			return items;
 		}
 	}
 }

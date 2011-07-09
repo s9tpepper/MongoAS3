@@ -1,5 +1,6 @@
 package as3.mongo.wire.messages.client
 {
+	import as3.mongo.wire.messages.IMessage;
 	import as3.mongo.wire.messages.MsgHeader;
 	import as3.mongo.wire.messages.OpCodes;
 
@@ -7,7 +8,7 @@ package as3.mongo.wire.messages.client
 
 	import org.serialization.bson.Int64;
 
-	public class OpGetMore
+	public class OpGetMore implements IMessage
 	{
 		protected var _msgHeader:MsgHeader;
 		protected var _fullCollectionName:String;

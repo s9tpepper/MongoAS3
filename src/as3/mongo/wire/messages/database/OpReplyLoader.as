@@ -59,6 +59,7 @@ package as3.mongo.wire.messages.database
 			{
 				_loading = false;
 				_loaded = true;
+				_socket.removeEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData);
 				_dispatchLoadedSignal();
 			}
 		}
