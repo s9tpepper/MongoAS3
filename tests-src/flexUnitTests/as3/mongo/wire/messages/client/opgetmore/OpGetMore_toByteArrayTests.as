@@ -72,7 +72,7 @@ package flexUnitTests.as3.mongo.wire.messages.client.opgetmore
 		[Test]
 		public function toByteArray_allScenarios_toByteArrayInvokedOnMsgHeader():void
 		{
-			const ba:ByteArray = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
 			assertThat(mockMsgHeader, received().method("toByteArray").noArgs().once());
 		}
@@ -80,67 +80,97 @@ package flexUnitTests.as3.mongo.wire.messages.client.opgetmore
 		[Test]
 		public function toByteArray_allScenarios_byteArrayIsSameAsByteArrayFromMsgHeader():void
 		{
-			const ba:ByteArray = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			assertEquals(_testByteArray, ba);
+			assertEquals(_testByteArray, byteArray);
 		}
 
 		[Test]
 		public function toByteArray_allScenarios_placeholderZeroIntIsWrittenAfterMsgHeader():void
 		{
-			const ba:ByteArray                   = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			const zeroIntPlaceholderPosition:int = 16;
-			ba.position = zeroIntPlaceholderPosition;
-			assertEquals(0, ba.readInt());
+			_assertPlaceholderZeroWrittenCorrectly(byteArray);
 		}
+
+		private function _assertPlaceholderZeroWrittenCorrectly(byteArray:ByteArray):void
+		{
+			const zeroIntPlaceholderPosition:int = 16;
+			byteArray.position = zeroIntPlaceholderPosition;
+			assertEquals(0, byteArray.readInt());
+		}
+
 
 		[Test]
 		public function toByteArray_allScenarios_fullCollectionUTFBytesAreWrittenAfterZeroPlaceholder():void
 		{
-			const ba:ByteArray                   = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			const fullCollectionNamePosition:int = 20;
-			ba.position = fullCollectionNamePosition;
-			assertEquals(_testFullCollectionName, ba.readUTFBytes(_testFullCollectionName.length));
+			_assertFullCollectionUTFBytesWrittenCorrectly(byteArray);
 		}
+
+		private function _assertFullCollectionUTFBytesWrittenCorrectly(byteArray:ByteArray):void
+		{
+			const fullCollectionNamePosition:int = 20;
+			byteArray.position = fullCollectionNamePosition;
+			assertEquals(_testFullCollectionName, byteArray.readUTFBytes(_testFullCollectionName.length));
+		}
+
 
 		[Test]
 		public function toByteArray_allScenarios_cStringZeroEndMarkerIsWrittenAfterFullCollectionName():void
 		{
-			const ba:ByteArray                     = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			const cStringZeroEndMarkerPosition:int = 20 + _testFullCollectionName.length;
-			ba.position = cStringZeroEndMarkerPosition;
-			assertEquals(0, ba.readByte());
+			_assertCStringZeroEndMarkerWrittenCorrectly(byteArray);
 		}
+
+		private function _assertCStringZeroEndMarkerWrittenCorrectly(byteArray:ByteArray):void
+		{
+			const cStringZeroEndMarkerPosition:int = 20 + _testFullCollectionName.length;
+			byteArray.position = cStringZeroEndMarkerPosition;
+			assertEquals(0, byteArray.readByte());
+		}
+
 
 		[Test]
 		public function toByteArray_allScenarios_numberToReturnIsWrittenAfterCString():void
 		{
-			const ba:ByteArray               = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			const numberToReturnPosition:int = 20 + _testFullCollectionName.length + 1;
-			ba.position = numberToReturnPosition;
-			assertEquals(_testNumberToReturn, ba.readInt());
+			_assertNumberToReturnIsWrittenCorrectly(byteArray);
 		}
+
+		private function _assertNumberToReturnIsWrittenCorrectly(byteArray:ByteArray):void
+		{
+			const numberToReturnPosition:int = 20 + _testFullCollectionName.length + 1;
+			byteArray.position = numberToReturnPosition;
+			assertEquals(_testNumberToReturn, byteArray.readInt());
+		}
+
 
 		[Test]
 		public function toByteArray_allScenarios_cursorIDIsWritten():void
 		{
-			const ba:ByteArray         = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
+			_assertCursorIDIsWrittenCorrectly(byteArray);
+		}
+
+		private function _assertCursorIDIsWrittenCorrectly(byteArray:ByteArray):void
+		{
 			const cursorIDPosition:int = 20 + _testFullCollectionName.length + 5;
-			ba.position = cursorIDPosition;
+			byteArray.position = cursorIDPosition;
 
-			var int64:Int64            = _getEncodedInt64(ba);
+			var int64:Int64            = _getEncodedInt64(byteArray);
 			assertTrue(Int64.cmp(_testCursorID, int64) == 0);
 		}
 
-		private function _getEncodedInt64(ba:ByteArray):Int64
+
+		private function _getEncodedInt64(byteArray:ByteArray):Int64
 		{
-			const first:int            = ba.readInt();
-			const second:int           = ba.readInt();
+			const first:int            = byteArray.readInt();
+			const second:int           = byteArray.readInt();
 
 			const int64Bytes:ByteArray = new ByteArray();
 			int64Bytes.writeInt(first);
@@ -153,17 +183,17 @@ package flexUnitTests.as3.mongo.wire.messages.client.opgetmore
 		[Test]
 		public function toByteArray_allScenarios_updateMessagLengthInvokedOnMsgHeader():void
 		{
-			const ba:ByteArray = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			assertThat(mockMsgHeader, received().method("updateMessageLength").arg(ba).once());
+			assertThat(mockMsgHeader, received().method("updateMessageLength").arg(byteArray).once());
 		}
 
 		[Test]
 		public function toByteArray_allScenarios_returnByteArrayWithPositionAtZero():void
 		{
-			const ba:ByteArray = _opGetMore.toByteArray();
+			const byteArray:ByteArray = _opGetMore.toByteArray();
 
-			assertEquals(0, ba.position);
+			assertEquals(0, byteArray.position);
 		}
 	}
 }
