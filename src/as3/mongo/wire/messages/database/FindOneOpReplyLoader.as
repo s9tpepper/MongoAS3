@@ -8,7 +8,6 @@ package as3.mongo.wire.messages.database
 	{
 		public function FindOneOpReplyLoader(aSocket:Socket)
 		{
-			trace("FindOneOpReplyLoader()");
 			super(aSocket);
 		}
 

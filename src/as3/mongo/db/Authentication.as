@@ -28,14 +28,14 @@ package as3.mongo.db
 
 		private function _getNonce():void
 		{
-			trace("_getNonce()");
+			/**TRACEDISABLE:trace("_getNonce()"); TRACEDISABLE*/
 			_db.wire.findOne("$cmd", _NONCE_QUERY).addOnce(_readNonceResponse);
 		}
 
 		private function _readNonceResponse(findOneResult:FindOneResult):void
 		{
-			trace("_readNonceResponse()");
-			trace("findOneResult = " + ObjectUtil.toString(findOneResult));
+			/**TRACEDISABLE:trace("_readNonceResponse()"); TRACEDISABLE*/
+			/**TRACEDISABLE:trace("findOneResult = " + ObjectUtil.toString(findOneResult)); TRACEDISABLE*/
 			if (findOneResult.success)
 				_finishAuthentication(findOneResult.document.nonce);
 			else

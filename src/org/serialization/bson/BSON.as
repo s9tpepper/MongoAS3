@@ -184,7 +184,6 @@ package org.serialization.bson
 //			}
 			else if (object is Document)
 			{
-				trace("****************************WENT INTO THE OBJECT IS DOCUMENT CASE *********************");
 				type = BSON_DOCUMENT;
 				value = toBSONDocument(object as Document);
 
@@ -193,8 +192,6 @@ package org.serialization.bson
 			{
 
 				// this should never happen
-				trace("parseItem: encountered an unknown object");
-
 			}
 
 			return [type, value];
@@ -348,10 +345,7 @@ package org.serialization.bson
 			bson.position = 0;
 			bson.endian = Endian.LITTLE_ENDIAN;
 			bson.writeInt(bson.length);
-			trace("Writing document size: " + bson.length);
 			bson.position = 0;
-			trace("reading: " + bson.readInt());
-			trace("endian = " + bson.endian);
 
 			bson.position = 0;
 			bson.endian = Endian.LITTLE_ENDIAN;
@@ -446,7 +440,7 @@ package org.serialization.bson
 				var key:String = readBSONcstring(bson);
 				if (key != count.toString())
 				{
-					trace("fromBSONArray: incorrect key for array value");
+					//trace("fromBSONArray: incorrect key for array value");
 				}
 
 				switch (type)
@@ -519,7 +513,7 @@ package org.serialization.bson
 
 					default:
 						// this should never happen
-						trace("fromBSONArray: encountered an unknown object type");
+						//trace("fromBSONArray: encountered an unknown object type");
 
 				}
 				++count;
@@ -626,7 +620,7 @@ package org.serialization.bson
 
 					default:
 						// this should never happen
-						trace("fromBSONArray: encountered an unknown object type");
+						//trace("fromBSONArray: encountered an unknown object type");
 
 				}
 				type = bson.readByte();
