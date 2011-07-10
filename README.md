@@ -20,8 +20,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
-==================================================================================
-
+-----------------------------------------------------------------------------
 # MongoAS3 - An ActionScript 3 MongoDB Driver
 
 An ActionScript 3 driver for mongodb that works without the use of a server side language such as PHP, Java, .Net, etc.
