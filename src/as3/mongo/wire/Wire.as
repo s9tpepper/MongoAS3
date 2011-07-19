@@ -15,9 +15,9 @@ package as3.mongo.wire
 	import as3.mongo.wire.messages.database.FindOneOpReplyLoader;
 	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
-
+	
 	import flash.net.Socket;
-
+	
 	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
@@ -180,6 +180,9 @@ package as3.mongo.wire
 
 		public function find(dbName:String, collectionName:String, query:Document, options:FindOptions=null):Signal
 		{
+			if (null == options)
+				options = new FindOptions();
+			
 			_checkIfSocketIsConnected();
 			const opQuery:OpQuery             = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
 			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
