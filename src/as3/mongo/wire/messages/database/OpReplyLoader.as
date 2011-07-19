@@ -14,6 +14,7 @@ package as3.mongo.wire.messages.database
 		protected var _loaded:Boolean;
 		protected var _opReply:OpReply;
 		protected var _currentReplyLength:int;
+		protected var _amountOfBytesLoaded:uint;
 
 		public function OpReplyLoader(aSocket:Socket)
 		{
@@ -55,7 +56,9 @@ package as3.mongo.wire.messages.database
 
 		private function _checkIfReplyIsComplete(event:ProgressEvent):void
 		{
-			if (event.bytesLoaded == _currentReplyLength)
+			_amountOfBytesLoaded += event.bytesLoaded;
+			
+			if (_amountOfBytesLoaded == _currentReplyLength)
 			{
 				_loading = false;
 				_loaded = true;
