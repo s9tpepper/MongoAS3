@@ -53,6 +53,8 @@ package flexUnitTests.as3.mongo.db
 			_db.update(null, new Document(), new Document());
 		}
 
+		[Deprecated(message = "This test is deprecated as of version 0.3. Periods in collection names are needed to access collections like 'system.indexes'.")]
+		[Ignore]
 		[Test(expects = "as3.mongo.error.MongoError")]
 		public function update_invalidCollectionNameWithPeriodInIt_throwsError():void
 		{

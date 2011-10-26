@@ -108,6 +108,8 @@ package flexUnitTests.as3.mongo.db
 			_db.find(null, new Document(), new FindOptions());
 		}
 
+		[Deprecated(message = "This test is deprecated as of version 0.3. Periods in collection names are needed to access collections like 'system.indexes'.")]
+		[Ignore]
 		[Test(expects = "as3.mongo.error.MongoError")]
 		public function find_invalidCollectionNameWithPeriod_throwsError():void
 		{

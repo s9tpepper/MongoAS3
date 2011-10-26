@@ -23,9 +23,6 @@ package as3.mongo.db
 		{
 			if (null == collectionName || "" == collectionName)
 				throw new MongoError(MongoError.COLLECTION_NAME_MAY_NOT_BE_NULL_OR_EMPTY);
-
-			if (collectionName.lastIndexOf(".") > -1)
-				throw new MongoError(MongoError.INVALID_COLLECTION_NAME_CONTAINS_PERIOD);
 		}
 
 		public static function canAuthenticate(db:DB):Boolean
