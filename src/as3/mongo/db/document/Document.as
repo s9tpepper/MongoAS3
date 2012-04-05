@@ -74,7 +74,6 @@ package as3.mongo.db.document
 		
 		/**
 		 * ERICSOCO ADDED
-		 * I hate this fucking Document class....so bloated.
 		 */
 		public function getValueByKey(key:String):*
 		{
