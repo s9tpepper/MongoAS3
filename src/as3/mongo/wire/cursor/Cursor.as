@@ -1,16 +1,14 @@
 package as3.mongo.wire.cursor
 {
 	import as3.mongo.wire.messages.database.OpReply;
-	import as3.mongo.wire.messages.database.OpReplyLoader;
-
+	
 	import flash.utils.Dictionary;
-
+	
 	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
 	public class Cursor
 	{
-		protected var _opReplyLoader:OpReplyLoader;
 		protected var _ready:Boolean;
 		protected var _totalDocumentsLoaded:uint;
 		protected var _cursorID:Int64;
@@ -22,9 +20,21 @@ package as3.mongo.wire.cursor
 		protected var _gotMore:Signal       = new Signal(Cursor);
 		protected var _getMoreMessage:GetMoreMessage;
 
-		public function Cursor(opReplyLoader:OpReplyLoader)
+		public function Cursor()
 		{
-			_initializeCursor(opReplyLoader);
+			//
+		}
+		
+		public function onReplyLoaded (opReply:OpReply) :void {
+			_totalDocumentsLoaded += opReply.numberReturned;
+			_cursorID = opReply.cursorID;
+			_cacheDocuments(opReply);
+			
+			if (!_ready)
+			{
+				_ready = true;
+				_cursorReady.dispatch(this);
+			}
 		}
 
 		public function set getMoreMessage(value:GetMoreMessage):void
@@ -44,7 +54,7 @@ package as3.mongo.wire.cursor
 
 		public function toString():String
 		{
-			return "Cursor{_opReplyLoader:" + _opReplyLoader + ", _ready:" + _ready + ", _totalDocumentsLoaded:" + _totalDocumentsLoaded + ", _cursorID:" + _cursorID + ", _documents:" + _documents + ", _currentIndex:" + _currentIndex + ", _lastIndexCached:" + _lastIndexCached + ", _activeIndices:[" + _activeIndices + "]}";
+			return "Cursor{_ready:" + _ready + ", _totalDocumentsLoaded:" + _totalDocumentsLoaded + ", _cursorID:" + _cursorID + ", _documents:" + _documents + ", _currentIndex:" + _currentIndex + ", _lastIndexCached:" + _lastIndexCached + ", _activeIndices:[" + _activeIndices + "]}";
 		}
 
 		public function get cursorID():Int64
@@ -60,25 +70,6 @@ package as3.mongo.wire.cursor
 		public function get ready():Boolean
 		{
 			return _ready;
-		}
-
-		private function _initializeCursor(opReplyLoader:OpReplyLoader):void
-		{
-			_opReplyLoader = opReplyLoader;
-			_opReplyLoader.LOADED.addOnce(_onLoaded);
-		}
-
-		private function _onLoaded(opReply:OpReply):void
-		{
-			_totalDocumentsLoaded += opReply.numberReturned;
-			_cursorID = opReply.cursorID;
-			_cacheDocuments(opReply);
-
-			if (!_ready)
-			{
-				_ready = true;
-				_cursorReady.dispatch(this);
-			}
 		}
 
 		private function _cacheDocuments(opReply:OpReply):void

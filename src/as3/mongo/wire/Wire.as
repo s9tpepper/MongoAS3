@@ -5,6 +5,7 @@ package as3.mongo.wire
 	import as3.mongo.error.MongoError;
 	import as3.mongo.wire.cursor.Cursor;
 	import as3.mongo.wire.cursor.GetMoreMessage;
+	import as3.mongo.wire.messages.IMessage;
 	import as3.mongo.wire.messages.MessageFactory;
 	import as3.mongo.wire.messages.client.FindOptions;
 	import as3.mongo.wire.messages.client.OpDelete;
@@ -16,204 +17,177 @@ package as3.mongo.wire
 	import as3.mongo.wire.messages.database.OpReply;
 	import as3.mongo.wire.messages.database.OpReplyLoader;
 	
+	import flash.events.Event;
+	import flash.events.IOErrorEvent;
+	import flash.events.SecurityErrorEvent;
 	import flash.net.Socket;
+	import flash.utils.Dictionary;
 	
 	import org.osflash.signals.Signal;
 	import org.serialization.bson.Int64;
 
-	public class Wire
-	{
-		protected var _socket:Socket;
-		protected var _messageFactory:MessageFactory;
+	public class Wire {
+		private var db:DB;
+		private var messageFactory:MessageFactory;
+		
+		// for requests that just push bytes through the Socket and don't wait for a reply
+		private var noReplySocket:Socket;
+		private var pendingNoReplyMessages:Vector.<IMessage>;
+		
+		private var activeRequestSequences:Vector.<RequestSequence>;
+		
 
-		protected var _db:DB;
-		protected var _isConnected:Boolean;
-		protected var _messenger:Messenger;
-		protected var _connector:Connector;
-		protected var _cursorFactory:CursorFactory;
-		protected var _activeCursors:Array;
-
-		public function get connector():Connector
-		{
-			return _connector;
+		public function Wire (db:DB) {
+			this.db = db;
+			init();
 		}
-
-		public function get messenger():Messenger
-		{
-			return _messenger;
-		}
-
-		public function get db():DB
-		{
-			return _db;
-		}
-
-		public function get messageFactory():MessageFactory
-		{
-			return _messageFactory;
-		}
-
-		public function get socket():Socket
-		{
-			return _socket;
-		}
-
-		public function get isConnected():Boolean
-		{
-			return _isConnected;
-		}
-
-		public function Wire(db:DB)
-		{
-			_initializeWire(db);
-		}
-
-		private function _initializeWire(db:DB):void
-		{
-			_db = db;
-			_socket = new Socket();
-			_messenger = new Messenger(this);
-			_connector = new Connector(this);
-			_messageFactory = new MessageFactory();
-			_cursorFactory = new CursorFactory();
-			_activeCursors = new Array();
-		}
-
-		public function connect():void
-		{
-			_connector.connect();
-		}
-
-		internal function setConnected(value:Boolean):void
-		{
-			_isConnected = value;
-		}
-
-		public function runCommand(command:Document):Signal
-		{
-			_checkIfSocketIsConnected();
-			const opQuery:OpQuery             = messageFactory.makeRunCommandOpQueryMessage(_db.name, "$cmd", command);
-			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
-			_messenger.sendMessage(opQuery);
-
-			_activeOpReplyLoaders.push(opReplyLoader);
-			opReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
-			return opReplyLoader.LOADED;
-		}
-
-		private var _activeOpReplyLoaders:Vector.<OpReplyLoader> = new Vector.<OpReplyLoader>();
-
-		public function findOne(collectionName:String, query:Document, returnFields:Document=null):Signal
-		{
-			_checkIfSocketIsConnected();
-			const opQuery:OpQuery                           = messageFactory.makeFindOneOpQueryMessage(_db.name, collectionName, query, returnFields);
-			const findOneOpReplyLoader:FindOneOpReplyLoader = new FindOneOpReplyLoader(socket);
-			_messenger.sendMessage(opQuery);
-
-			_activeOpReplyLoaders.push(findOneOpReplyLoader);
-			findOneOpReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
-			return findOneOpReplyLoader.LOADED;
-		}
-
-		private function _onOpReplyLoaded(document:Object):void
-		{
-			const loadedLoaders:Vector.<OpReplyLoader> = new Vector.<OpReplyLoader>();
-			var loader:OpReplyLoader
-			for each (loader in _activeOpReplyLoaders)
-			{
-				if (loader.isLoaded)
-					loadedLoaders.push(loader);
-			}
-
-			for each (loader in loadedLoaders)
-			{
-				if (_activeOpReplyLoaders.lastIndexOf(loader) != -1)
-					_activeOpReplyLoaders.splice(_activeOpReplyLoaders.lastIndexOf(loader), 1);
-			}
-		}
-
-		private function _checkIfSocketIsConnected():void
-		{
-			if (false === socket.connected)
-				throw new MongoError(MongoError.SOCKET_NOT_CONNECTED);
-		}
-
-		// TODO: Write integration tests for this
-		public function insert(dbName:String, collectionName:String, document:Document):void
-		{
-			_checkIfSocketIsConnected();
+		
+		
+		//-----<REQUESTS>--------------------------------------------//
+		//-----no-reply requests-----//
+		public function insert (dbName:String, collectionName:String, document:Document) :void {
 			const opInsert:OpInsert = messageFactory.makeSaveOpInsertMessage(dbName, collectionName, document);
-			_messenger.sendMessage(opInsert);
+			sendMessage(opInsert);
 		}
-
-		// TODO: Write integration tests for this
-		public function remove(dbName:String, collectionName:String, selector:Document):void
-		{
-			_checkIfSocketIsConnected();
+		
+		public function remove (dbName:String, collectionName:String, selector:Document) :void {
 			const opDelete:OpDelete = messageFactory.makeRemoveOpDeleteMessage(dbName, collectionName, selector);
-			_messenger.sendMessage(opDelete);
+			sendMessage(opDelete);
 		}
-
-		// TODO: Write integration tests for this
-		public function updateFirst(dbName:String, collectionName:String, selector:Document, document:Document):void
-		{
-			_checkIfSocketIsConnected();
+		
+		public function updateFirst (dbName:String, collectionName:String, selector:Document, document:Document) :void {
 			const opUpdate:OpUpdate = messageFactory.makeUpdateFirstOpUpdateMessage(dbName, collectionName, selector, document);
-			_messenger.sendMessage(opUpdate);
+			sendMessage(opUpdate);
 		}
-
-		// TODO: Write integration tests for this
-		public function update(dbName:String, collectionName:String, selector:Document, modifier:Document):void
-		{
-			_checkIfSocketIsConnected();
+		
+		public function update (dbName:String, collectionName:String, selector:Document, modifier:Document) :void {
 			const opUpdate:OpUpdate = messageFactory.makeUpdateOpUpdateMessage(dbName, collectionName, selector, modifier);
-			_messenger.sendMessage(opUpdate);
+			sendMessage(opUpdate);
 		}
-
-		// TODO: Write integration tests for this
-		public function upsert(dbName:String, collectionName:String, selector:Document, document:Document):void
-		{
-			_checkIfSocketIsConnected();
+		
+		public function upsert (dbName:String, collectionName:String, selector:Document, document:Document) :void {
 			const opUpdate:OpUpdate = messageFactory.makeUpsertOpUpdateMessage(dbName, collectionName, selector, document);
-			_messenger.sendMessage(opUpdate);
+			sendMessage(opUpdate);
 		}
-
-		public function find(dbName:String, collectionName:String, query:Document, options:FindOptions=null):Signal
-		{
-			if (null == options)
+		
+		//-----request sequences-----//
+		public function find (dbName:String, collectionName:String, query:Document, options:FindOptions=null) :Signal {
+			if (null == options) {
 				options = new FindOptions();
+			}
 			
-			_checkIfSocketIsConnected();
-			const opQuery:OpQuery             = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
-			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
-
-			const cursor:Cursor               = _cursorFactory.getCursor(opReplyLoader);
+			const opQuery:OpQuery = messageFactory.makeFindOpQueryMessage(dbName, collectionName, query, options);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader();
+			
+			var cursor:Cursor = new Cursor();
 			cursor.getMoreMessage = new GetMoreMessage(dbName, collectionName, options, this, cursor);
-			_activeCursors.push(cursor);
-			cursor.cursorReady.addOnce(_onCursorReady);
-
-			_messenger.sendMessage(opQuery);
+			
+			launchRequestSequence(opQuery, opReplyLoader, cursor);
+			
 			return cursor.cursorReady;
 		}
+		
+		public function findOne (collectionName:String, query:Document, returnFields:Document=null) :Signal {
+			const opQuery:OpQuery = messageFactory.makeFindOneOpQueryMessage(db.name, collectionName, query, returnFields);
+			const findOneOpReplyLoader:FindOneOpReplyLoader = new FindOneOpReplyLoader();
+			launchRequestSequence(opQuery, findOneOpReplyLoader);
 
-		private function _onCursorReady(cursor:Cursor):void
-		{
-			if (-1 < _activeCursors.lastIndexOf(cursor))
-			{
-				_activeCursors.splice(_activeCursors.lastIndexOf(cursor), 1);
+			return findOneOpReplyLoader.LOADED;
+		}
+		
+		public function getMore (dbName:String, collectionName:String, options:FindOptions, cursorID:Int64) :Signal {
+			const opGetMore:OpGetMore = messageFactory.makeGetMoreOpGetMoreMessage(dbName, collectionName, options.numberToReturn, cursorID);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader();
+			launchRequestSequence(opGetMore, opReplyLoader);
+			
+			return opReplyLoader.LOADED;
+		}
+		
+		public function runCommand (command:Document) :Signal {
+			const opQuery:OpQuery = messageFactory.makeRunCommandOpQueryMessage(db.name, "$cmd", command);
+			const opReplyLoader:OpReplyLoader = new OpReplyLoader();
+			launchRequestSequence(opQuery, opReplyLoader);
+			
+			return opReplyLoader.LOADED;
+		}
+		//-----</REQUESTS>-------------------------------------------//
+		
+		
+		
+		private function init () :void {
+			initSocketResources();
+			messageFactory = new MessageFactory();
+			activeRequestSequences = new Vector.<RequestSequence>();
+		}
+		
+		private function sendMessage (message:IMessage) :void {
+			if (!noReplySocket.connected) {
+				pendingNoReplyMessages.push(message);
+				return;
+			}
+			
+			noReplySocket.writeBytes(message.toByteArray());
+			noReplySocket.flush();
+		}
+		
+		private function launchRequestSequence (query:IMessage, replyLoader:OpReplyLoader, cursor:Cursor=null) :void {
+			var rs:RequestSequence = new RequestSequence(query, replyLoader, cursor);
+			
+			rs.addEventListener(IOErrorEvent.IO_ERROR, onRequestSequenceComplete);
+			rs.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onRequestSequenceComplete);
+			rs.addEventListener(Event.COMPLETE, onRequestSequenceComplete);
+			
+			activeRequestSequences.push(rs);
+			rs.begin(db.host, db.port);
+		}
+		
+		private function onRequestSequenceComplete (evt:Event) :void {
+			var rs:RequestSequence = evt.target as RequestSequence;
+			if (!rs) { return; }
+			
+			rs.removeEventListener(IOErrorEvent.IO_ERROR, onRequestSequenceComplete);
+			rs.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onRequestSequenceComplete);
+			rs.removeEventListener(Event.COMPLETE, onRequestSequenceComplete);
+			
+			var i:int = activeRequestSequences.indexOf(rs);
+			if (i != -1) {
+				activeRequestSequences.splice(i, 1);
+			}
+			
+			if (evt is IOErrorEvent) {
+				db.connectionFailed.dispatch(db);
+			} else if (evt is SecurityErrorEvent) {
+				db.socketPolicyFileError.dispatch(db);
 			}
 		}
-
-		public function getMore(dbName:String, collectionName:String, options:FindOptions, cursorID:Int64):Signal
-		{
-			_checkIfSocketIsConnected();
-
-			const opGetMore:OpGetMore         = messageFactory.makeGetMoreOpGetMoreMessage(dbName, collectionName, options.numberToReturn, cursorID);
-			const opReplyLoader:OpReplyLoader = new OpReplyLoader(socket);
-			_messenger.sendMessage(opGetMore);
-			_activeOpReplyLoaders.push(opReplyLoader);
-			opReplyLoader.LOADED.addOnce(_onOpReplyLoaded);
-			return opReplyLoader.LOADED;
+		
+		private function initSocketResources () :void {
+			pendingNoReplyMessages = new Vector.<IMessage>();
+			
+			noReplySocket = new Socket();
+			noReplySocket.addEventListener(IOErrorEvent.IO_ERROR, onSocketReady);
+			noReplySocket.addEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketReady);
+			noReplySocket.addEventListener(Event.CONNECT, onSocketReady);
+			noReplySocket.connect(db.host, db.port);
+		}
+		
+		private function onSocketReady (evt:Event) :void {
+			noReplySocket.removeEventListener(IOErrorEvent.IO_ERROR, onSocketReady);
+			noReplySocket.removeEventListener(SecurityErrorEvent.SECURITY_ERROR, onSocketReady);
+			noReplySocket.removeEventListener(Event.CONNECT, onSocketReady);
+			
+			if (evt is IOErrorEvent) {
+				db.connectionFailed.dispatch(db);
+				return;
+			} else if (evt is SecurityErrorEvent) {
+				db.socketPolicyFileError.dispatch(db);
+				return;
+			}
+			
+			for (var i:int=0; i<pendingNoReplyMessages.length; i++) {
+				sendMessage(pendingNoReplyMessages[i]);
+			}
+			pendingNoReplyMessages = null;
 		}
 	}
 }

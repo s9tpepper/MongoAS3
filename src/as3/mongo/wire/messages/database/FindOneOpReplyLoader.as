@@ -6,14 +6,14 @@ package as3.mongo.wire.messages.database
 
 	public class FindOneOpReplyLoader extends OpReplyLoader
 	{
-		public function FindOneOpReplyLoader(aSocket:Socket)
+		public function FindOneOpReplyLoader()
 		{
-			super(aSocket);
+			//
 		}
 
-		override protected function _initializeOpReplyLoader(aSocket:Socket):void
+		override public function initializeOpReplyLoader(aSocket:Socket):void
 		{
-			super._initializeOpReplyLoader(aSocket);
+			super.initializeOpReplyLoader(aSocket);
 
 			_LOADED = new Signal(FindOneResult);
 		}

@@ -17,7 +17,7 @@ package as3.mongo.db
 	{
 		protected var _authenticated:Signal         = new Signal(DB);
 		protected var _authenticationProblem:Signal = new Signal(DB);
-		protected var _connected:Signal             = new Signal(DB);
+//		protected var _connected:Signal             = new Signal(DB);
 		protected var _connectionFailed:Signal      = new Signal(DB);
 		protected var _socketPolicyFileError:Signal = new Signal(DB);
 
@@ -41,12 +41,12 @@ package as3.mongo.db
 		{
 			return _connectionFailed;
 		}
-
+		/*
 		public function get connected():Signal
 		{
 			return _connected;
 		}
-
+		*/
 		public function get authenticationProblem():Signal
 		{
 			return _authenticationProblem;
@@ -76,12 +76,12 @@ package as3.mongo.db
 		{
 			return (_credentials is Credentials);
 		}
-
+		/*
 		public function get isConnected():Boolean
 		{
 			return _isConnected;
 		}
-
+		*/
 		public function get port():uint
 		{
 			return _port;
@@ -114,14 +114,14 @@ package as3.mongo.db
 
 		private function _initialize(databaseName:String, databaseHost:String, databasePort:uint):void
 		{
-			_wire = new Wire(this);
-
 			_collections = new Dictionary();
 			_authenticationFactory = new AuthenticationFactory();
 
 			_name = databaseName;
 			_host = databaseHost;
 			_port = databasePort;
+			
+			_wire = new Wire(this);
 		}
 
 		public function setCredentials(dbCredentials:Credentials):void
@@ -165,12 +165,12 @@ package as3.mongo.db
 		{
 			return wire.runCommand(command);
 		}
-
+		/*
 		public function connect():void
 		{
 			wire.connect();
 		}
-
+		*/
 		public function insert(collectionName:String, document:Document):void
 		{
 			wire.insert(name, collectionName, document);

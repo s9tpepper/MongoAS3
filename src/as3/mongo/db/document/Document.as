@@ -71,6 +71,17 @@ package as3.mongo.db.document
 		{
 			return _values[index];
 		}
+		
+		/**
+		 * ERICSOCO ADDED
+		 * I hate this fucking Document class....so bloated.
+		 */
+		public function getValueByKey(key:String):*
+		{
+			var index:uint = _keys.indexOf(key);
+			if (index == -1) { return null; }
+			else { return _values[index]; }
+		}
 
 		public function put(key:String, value:*):void
 		{
