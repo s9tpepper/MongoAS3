@@ -16,9 +16,9 @@ package as3.mongo.wire.messages.database
 		protected var _currentReplyLength:int;
 		protected var _amountOfBytesLoaded:uint;
 
-		public function OpReplyLoader(aSocket:Socket)
+		public function OpReplyLoader()
 		{
-			_initializeOpReplyLoader(aSocket);
+			_LOADED = new Signal(OpReply);
 		}
 
 		public function get opReply():OpReply
@@ -41,11 +41,10 @@ package as3.mongo.wire.messages.database
 			return _socket;
 		}
 
-		protected function _initializeOpReplyLoader(aSocket:Socket):void
+		public function initializeOpReplyLoader(aSocket:Socket):void
 		{
 			_socket = aSocket;
 			_socket.addEventListener(ProgressEvent.SOCKET_DATA, _handleSocketData, false, 0, true);
-			_LOADED = new Signal(OpReply);
 		}
 
 		private function _handleSocketData(event:ProgressEvent):void

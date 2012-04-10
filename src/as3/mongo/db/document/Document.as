@@ -1,7 +1,7 @@
 package as3.mongo.db.document
 {
 	import as3.mongo.error.MongoError;
-
+	
 	import org.serialization.bson.ObjectID;
 
 	public class Document
@@ -71,12 +71,86 @@ package as3.mongo.db.document
 		{
 			return _values[index];
 		}
+		
+		/**
+		 * ERICSOCO ADDED
+		 */
+		public function getValueByKey(key:String):*
+		{
+			var index:int = _keys.indexOf(key);
+			if (index == -1) { return null; }
+			else { return _values[index]; }
+		}
 
 		public function put(key:String, value:*):void
 		{
+			/**
+			 * ERICSOCO ADDED
+			 */
+			var existingIndex:int = _keys.indexOf(key);
+			if (existingIndex != -1) {
+				_values[existingIndex] = value;
+				return;
+			}
+			
 			const nextIndex:Number = _keys.length;
 			_keys[nextIndex] = key;
 			_values[nextIndex] = value;
+		}
+		
+		/**
+		 * ERICSOCO ADDED
+		 */
+		public function remove (key:String) :void {
+			var existingIndex:int = _keys.indexOf(key);
+			if (existingIndex != -1) {
+				_keys.splice(existingIndex, 1);
+				_values.splice(existingIndex, 1);
+			}
+		}
+		
+		/**
+		 * ERICSOCO ADDED
+		 */
+		public function toString (tabLevel:int=0) :String {
+			function addTabs () :String {
+				var tabStr:String = "";
+				for (var t:int=0; t<tabLevel; t++) {
+					tabStr += "\t";
+				}
+				return tabStr;
+			}
+			
+			var output:String = addTabs() + "{\n";
+			var len:int = _keys.length;
+			var value:*;
+			
+			tabLevel++;
+			for (var i:int=0; i<len; i++) {
+				output += addTabs();
+				output += (_keys[i] + " : ");
+				
+				value = _values[i];
+				if (value is Document) {
+					output += Document(value).toString(tabLevel);
+				} else if (value is Array) {
+					var arr:Array = value as Array;
+					output += "[\n";
+					tabLevel++;
+					for (var j:int=0; j<arr.length; j++) {
+						output += (arr[j].toString(tabLevel) + ",\n");
+					}
+					tabLevel--;
+					output += (addTabs() + "]");
+				} else {
+					output += String(value);
+				}
+				output += "\n";
+			}
+			tabLevel--;
+			
+			output += (addTabs() + "}")
+			return output;
 		}
 	}
 }
