@@ -85,5 +85,17 @@ package as3.mongo.db.collection
 			_validateDocumentInstance(query);
 			return _db.find(name, query, options);
 		}
+
+		public function getCount(query:Document = null):Signal
+		{
+			var countDoc:Document = new Document();
+			countDoc.put("count", _name);
+			if(query != null)
+			{
+				countDoc.put("query", query.getValueAt(0));
+			}
+			
+			return _db.runCommand(countDoc);
+		}
 	}
 }
